@@ -1,0 +1,11 @@
+*.suo
+*.user
+_ReSharper.*/
+.vs/
+bin/
+obj/
+Debug/
+Release/
+packages/
+*.log
+TestResults/
