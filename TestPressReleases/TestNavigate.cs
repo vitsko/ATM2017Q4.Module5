@@ -10,30 +10,41 @@ namespace TestPressReleases
     [TestFixture]
     public class TestNavigate
     {
+
+        /// <summary>
+        /// (//div[@role='tablist'])//div[@class='panel-body']//div[@class='image']//img
+        /// </summary>
         private static ChromeDriver driver = new ChromeDriver();
-        private static string listOfReleases = "//div[@class=\"pressrelease-list-widget\"]";
-        private static string pressRelease = "//div[@role=\"tablist\"]";
+        private static string listOfReleases = "//div[@class='pressrelease-list-widget']";
+        private static string pressRelease = "//div[@role='tablist']";
 
         private static string PressReleasesAfterLoading = "//div[contains(@class,'panel-collapsible')]";
 
-        private static string buttonLoadMore = "//button[@data-bind=\"visible: CanLoadMore\"]";
+        private static string buttonLoadMore = "//button[@data-bind='visible: CanLoadMore']";
 
-        private static string cssSelectorAboutPR = string.Format("{0}{1}{2}{3}{4}",
-                                                                  "#pressreleaselist-month-",
-                                                                  ConfigurationManager.AppSettings["MonthOfPressReleaseWithImage"],
-                                                                  " > div:nth-child(",
-                                                                  ConfigurationManager.AppSettings["NumberOfPressRealeseInMonth"],
-                                                                  ")");
+        private static string CssSelectorAboutPR
+        {
+            get
+            {
+                return string.Format("#{0}{1}", driver.FindElement(By.XPath("(//a[@class='point point-month'])[1]")).GetAttribute("aria-controls"), " > div:nth-child(1)");
+            }
+        }
 
-        private static string datePR = string.Format("{0}{1}{2}",
-                                                       "#pressreleaselist-month-",
-                                                        ConfigurationManager.AppSettings["MonthOfPressReleaseWithImage"],
-                                                        " > div:nth-child(2) > div.panel-heading > h2 > span.date");
+        private static string DatePR
+        {
+            get
+            {
+                return string.Format("#{0}{1}", driver.FindElement(By.XPath("(//a[@class='point point-month'])[1]")).GetAttribute("aria-controls"), " > div:nth-child(1) > div.panel-heading > h2 > span.date");
+            }
+        }
 
-        private static string titlePR = string.Format("{0}{1}{2}",
-                                                       "#pressreleaselist-month-",
-                                                        ConfigurationManager.AppSettings["MonthOfPressReleaseWithImage"],
-                                                        " > div:nth-child(2) > div.panel-heading > h2 > span.title");
+        private static string TitlePR
+        {
+            get
+            {
+                return string.Format("#{0}{1}", driver.FindElement(By.XPath("(//a[@class='point point-month'])[1]")).GetAttribute("aria-controls"), " > div:nth-child(1) > div.panel-heading > h2 > span.title");
+            }
+        }
 
         private static int CountPressReleases = int.Parse(ConfigurationManager.AppSettings["CountPressReleases"]);
 
@@ -51,7 +62,7 @@ namespace TestPressReleases
         {
             get
             {
-                return driver.FindElementByCssSelector(cssSelectorAboutPR);
+                return driver.FindElementByCssSelector(CssSelectorAboutPR);
             }
         }
 
@@ -70,49 +81,44 @@ namespace TestPressReleases
         }
 
         [Test]
-        public void TestChrome()
+        public void TestListOfPressReleases()
         {
-            this.BlockIsVisible();
-            this.CountOfPressReleases();
-            this.CountOfPressReleasesAfterLoading();
-            this.AboutPR();
+            Assert.IsTrue(this.BlockIsVisible());
+            Assert.AreEqual(this.CountOfPressReleases(), TestNavigate.CountPressReleases);
+            Assert.IsTrue(this.LoadMore());
+            Assert.IsTrue(this.AboutPR());
         }
 
-        public void BlockIsVisible()
+        public bool BlockIsVisible()
         {
             this.IsElementVisible(listOfReleasesXPhath);
-            Assert.IsTrue(driver.FindElement(listOfReleasesXPhath).Displayed);
+            return driver.FindElement(listOfReleasesXPhath).Displayed;
         }
 
-        private void CountOfPressReleases()
+        private int CountOfPressReleases()
         {
-            Assert.IsTrue(driver.FindElements(pressReleaseXPath).Count == TestNavigate.CountPressReleases);
+            return driver.FindElements(pressReleaseXPath).Count;
         }
 
-        private void CountOfPressReleasesAfterLoading()
+        private bool LoadMore()
         {
             driver.FindElement(buttonLoadMoreXPath).Click();
             this.IsElementVisible(buttonLoadMoreXPath);
 
-            Assert.IsTrue(driver.FindElements(PressReleasesAfterLoadingXPath).Count == 2 * TestNavigate.CountPressReleases);
+            return driver.FindElements(PressReleasesAfterLoadingXPath).Count == 2 * TestNavigate.CountPressReleases;
         }
 
-        private void AboutPR()
+        private bool AboutPR()
         {
-            this.CheckTitlePR();
-
-
-
+            return this.CheckTitlePR();
         }
 
-        private void CheckTitlePR()
+        private bool CheckTitlePR()
         {
-            var date = InnerTextOfElementFromCssSelector(By.CssSelector(TestNavigate.datePR));
-            var title = InnerTextOfElementFromCssSelector(By.CssSelector(TestNavigate.titlePR));
+            var date = InnerTextOfElementFromCssSelector(By.CssSelector(TestNavigate.DatePR));
+            var title = InnerTextOfElementFromCssSelector(By.CssSelector(TestNavigate.TitlePR));
 
-            var text = string.Format("{0}{1}", date, title);
-
-            Assert.AreEqual(Resource.TitlePR, text);
+            return !(string.IsNullOrWhiteSpace(date) && string.IsNullOrWhiteSpace(title));
         }
 
         private void CheckImagePR()
@@ -130,7 +136,7 @@ namespace TestPressReleases
             new WebDriverWait(driver, TimeSpan.FromSeconds(this.timeoutInSec)).Until(ExpectedConditions.VisibilityOfAllElementsLocatedBy(element));
         }
 
-
+        //#pressreleaselist-month-0-2017-12 > div:nth-child(1)
 
     }
 
