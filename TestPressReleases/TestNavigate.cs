@@ -4,8 +4,10 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Configuration;
+    using System.Globalization;
     using System.Linq;
     using System.Net;
+    using System.Text.RegularExpressions;
     using NUnit.Framework;
     using OpenQA.Selenium;
     using OpenQA.Selenium.Chrome;
@@ -36,7 +38,11 @@
 
         private string cssLinkToWatchPDF = "div.panel-default.panel-time-line.panel-collapsible a.icon-s-flipbook-pdf_round";
         private string cssLinkToDownloadPDF = "div.panel-default.panel-time-line.panel-collapsible a.icon-s-download_round";
+        private string cssLinkToPagePR = "div.panel-default.panel-time-line.panel-collapsible a.icon-s-chevron-link";
         private string href = "href";
+
+        private string cssTitleOfPROnpage = "h3.press-release-page-title";
+        private string cssDateOfPROnpage = "span.pressrelise-article-date";
 
         private int CountOfElements { get; set; }
 
@@ -58,7 +64,6 @@
         [TearDown]
         public void CleanUp()
         {
-            driver.Close();
             driver.Quit();
         }
 
@@ -104,7 +109,8 @@
                    && this.CheckLinkOfFile(this.cssImagePR, this.srcImage) && (this.CountOfElements <= this.MaxCountOfPROnPage)
                    && this.IsExistTextByCSS(this.cssAnnouncement) && (this.CountOfElements <= this.MaxCountOfPROnPage)
                    && this.CheckLinkOfFile(this.cssLinkToWatchPDF, this.href) && (this.CountOfElements <= this.MaxCountOfPROnPage)
-                   && this.CheckLinkOfFile(this.cssLinkToDownloadPDF, this.href) && (this.CountOfElements <= this.MaxCountOfPROnPage);
+                   && this.CheckLinkOfFile(this.cssLinkToDownloadPDF, this.href) && (this.CountOfElements <= this.MaxCountOfPROnPage)
+                   && this.CheckTitleOnListAndPagePR();
         }
 
         private bool IsExistTextByCSS(string cssSelector)
@@ -146,6 +152,73 @@
             this.CountOfElements = sizes.Count;
 
             return sizes.TrueForAll(size => size > 0);
+        }
+
+        private bool CheckTitleOnListAndPagePR()
+        {
+            var titlesPROnList = this.InnerTextOfElementsFromCssSelector(this.cssHeaderPR);
+
+            // Click on scroll to up. Otherwise first link to page of press-release is not clickable.
+            TestNavigate.driver.ExecuteScript("scroll(250, 0)");
+
+            var linksToPagePR = TestNavigate.driver.FindElementsByCssSelector(this.cssLinkToPagePR);
+            var titlesPROnPage = this.GetTitlesOfPROnPages(linksToPagePR);
+
+            this.PostHandlingForDateOfPR(titlesPROnList, false);
+            this.PostHandlingForDateOfPR(titlesPROnPage, true);
+
+            return titlesPROnList.SequenceEqual(titlesPROnPage);
+        }
+
+        private List<string> GetTitlesOfPROnPages(ReadOnlyCollection<IWebElement> linksToPagePR)
+        {
+            var titlesPROnPage = new List<string>();
+
+            for (int i = 0; i < linksToPagePR.Count; i++)
+            {
+                TestNavigate.driver.Keyboard.PressKey(Keys.Control);
+
+                linksToPagePR[i].Click();
+                var prPage = driver.SwitchTo().Window(driver.WindowHandles.Last());
+
+                this.TitleOfPROnPage(titlesPROnPage);
+
+                prPage.Close();
+
+                driver.SwitchTo().Window(driver.WindowHandles.First());
+                TestNavigate.driver.Keyboard.PressKey(Keys.Control);
+            }
+
+            return titlesPROnPage;
+        }
+
+        private void TitleOfPROnPage(List<string> titlesPROnPage)
+        {
+            titlesPROnPage.Add(this.InnerTextOfElementsFromCssSelector(this.cssTitleOfPROnpage).First());
+            var date = this.InnerTextOfElementsFromCssSelector(this.cssDateOfPROnpage).First();
+
+            titlesPROnPage.Insert(titlesPROnPage.Count - 1, date);
+        }
+
+        private void PostHandlingForDateOfPR(List<string> titlesOfPR, bool isPageOfPR)
+        {
+            if (!isPageOfPR)
+            {
+                for (int i = 0; i < titlesOfPR.Count; i += 2)
+                {
+                    titlesOfPR[i] = Regex.Replace(titlesOfPR[i], " -", string.Empty);
+                }
+            }
+
+            DateTime parse;
+
+            var culture = baseUrl.Contains(".ru") ? new CultureInfo("ru-RU") : new CultureInfo("en-US");
+
+            for (int i = 0; i < titlesOfPR.Count; i += 2)
+            {
+                DateTime.TryParse(titlesOfPR[i], culture, DateTimeStyles.AllowWhiteSpaces, out parse);
+                titlesOfPR[i] = parse.ToShortDateString();
+            }
         }
 
         private List<string> GetValueOfAttribute(string cssSelector, string attribute)
