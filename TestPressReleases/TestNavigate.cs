@@ -7,19 +7,17 @@
     using System.Globalization;
     using System.Linq;
     using System.Net;
-    using System.Text.RegularExpressions;
     using NUnit.Framework;
     using OpenQA.Selenium;
     using OpenQA.Selenium.Chrome;
-    using OpenQA.Selenium.Support.UI;
 
     [TestFixture]
     public class TestNavigate
     {
-        private static ChromeDriver driver = new ChromeDriver();
-
+        private static ChromeDriver driver;
+        private static CultureInfo culture;
         private static string baseUrl = ConfigurationManager.AppSettings["baseUrl"];
-        private static int timeoutInSec = int.Parse(ConfigurationManager.AppSettings["TimeoutInSec"]);
+
         private static int countOfPressReleases = int.Parse(ConfigurationManager.AppSettings["CountOfPressReleases"]);
         private static int countOfClickMoreLoad = int.Parse(ConfigurationManager.AppSettings["CountOfClickMoreLoad"]);
 
@@ -44,7 +42,40 @@
         private string cssTitleOfPROnpage = "h3.press-release-page-title";
         private string cssDateOfPROnpage = "span.pressrelise-article-date";
 
-        private int CountOfElements { get; set; }
+        private string cssDateFrom = "input[id='calendar-from']";
+        private string cssDateTo = "input[id='calendar-to']";
+        private string cssButtonFilter = "button.filter-btn";
+        private string cssCopyRight = "div.copy";
+
+        private string patternDate;
+
+        internal static ChromeDriver Driver
+        {
+            get
+            {
+                if (TestNavigate.driver == null)
+                {
+                    TestNavigate.driver = new ChromeDriver();
+                }
+
+                return TestNavigate.driver;
+            }
+        }
+
+        internal static int CountOfElements { get; set; }
+
+        internal static CultureInfo Culture
+        {
+            get
+            {
+                if (TestNavigate.culture == null)
+                {
+                    TestNavigate.culture = TestNavigate.baseUrl.Contains(".ru") ? new CultureInfo("ru-RU") : new CultureInfo("en-US");
+                }
+
+                return TestNavigate.culture;
+            }
+        }
 
         private int MaxCountOfPROnPage
         {
@@ -54,17 +85,52 @@
             }
         }
 
+        private DateTime DateFrom
+        {
+            get
+            {
+                DateTime parse;
+                DateTime.TryParse(ConfigurationManager.AppSettings["DateFrom"], TestNavigate.Culture, DateTimeStyles.AllowWhiteSpaces, out parse);
+
+                return parse;
+            }
+        }
+
+        private DateTime DateTo
+        {
+            get
+            {
+                DateTime parse;
+                DateTime.TryParse(ConfigurationManager.AppSettings["DateTo"], TestNavigate.Culture, DateTimeStyles.AllowWhiteSpaces, out parse);
+
+                return parse;
+            }
+        }
+
+        private string PatternDate
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(this.patternDate))
+                {
+                    this.patternDate = TestNavigate.baseUrl.Contains(".ru") ? "dd.MM.yyyy" : "MM/dd/yyyy";
+                }
+
+                return this.patternDate;
+            }
+        }
+
         [SetUp]
         public void SetupTest()
         {
-            driver.Navigate().GoToUrl(baseUrl);
-            driver.Manage().Window.Maximize();
+            TestNavigate.Driver.Navigate().GoToUrl(baseUrl);
+            TestNavigate.Driver.Manage().Window.Maximize();
         }
 
         [TearDown]
         public void CleanUp()
         {
-            driver.Quit();
+            TestNavigate.Driver.Quit();
         }
 
         [Test]
@@ -74,17 +140,18 @@
             Assert.AreEqual(this.DefaultCountOfPressReleases(), TestNavigate.countOfPressReleases);
             Assert.IsTrue(this.LoadMore() <= this.MaxCountOfPROnPage);
             Assert.IsTrue(this.AboutPR());
+            Assert.IsTrue(this.CheckRangeDateOfPRByFilter());
         }
 
         public bool BlockIsVisible()
         {
-            this.IsElementVisible(this.listOfReleasesXPhath);
-            return driver.FindElement(this.listOfReleasesXPhath).Displayed;
+            Helper.IsElementVisible(this.listOfReleasesXPhath);
+            return TestNavigate.Driver.FindElement(this.listOfReleasesXPhath).Displayed;
         }
 
         private int DefaultCountOfPressReleases()
         {
-            return driver.FindElements(this.pressReleaseXPath).Count;
+            return TestNavigate.Driver.FindElements(this.pressReleaseXPath).Count;
         }
 
         private int LoadMore()
@@ -93,48 +160,29 @@
             {
                 for (int i = 0; i <= TestNavigate.countOfClickMoreLoad - 1; i++)
                 {
-                    this.IsElementVisible(this.buttonLoadMoreXPath);
-                    driver.FindElement(this.buttonLoadMoreXPath).Click();
-                    this.IsElementVisible(this.buttonLoadMoreXPath);
+                    Helper.IsElementVisible(this.buttonLoadMoreXPath);
+                    TestNavigate.Driver.FindElement(this.buttonLoadMoreXPath).Click();
+                    Helper.IsElementVisible(this.buttonLoadMoreXPath);
                 }
             }
             catch { }
 
-            return driver.FindElements(this.pressReleasesAfterLoadingXPath).Count;
+            return TestNavigate.Driver.FindElements(this.pressReleasesAfterLoadingXPath).Count;
         }
 
         private bool AboutPR()
         {
-            return this.IsExistTextByCSS(this.cssHeaderPR) && (this.CountOfElements / 2 <= this.MaxCountOfPROnPage)
-                   && this.CheckLinkOfFile(this.cssImagePR, this.srcImage) && (this.CountOfElements <= this.MaxCountOfPROnPage)
-                   && this.IsExistTextByCSS(this.cssAnnouncement) && (this.CountOfElements <= this.MaxCountOfPROnPage)
-                   && this.CheckLinkOfFile(this.cssLinkToWatchPDF, this.href) && (this.CountOfElements <= this.MaxCountOfPROnPage)
-                   && this.CheckLinkOfFile(this.cssLinkToDownloadPDF, this.href) && (this.CountOfElements <= this.MaxCountOfPROnPage)
+            return Helper.IsExistTextByCSS(this.cssHeaderPR) && (TestNavigate.CountOfElements / 2 <= this.MaxCountOfPROnPage)
+                   && this.CheckLinkOfFile(this.cssImagePR, this.srcImage) && (TestNavigate.CountOfElements <= this.MaxCountOfPROnPage)
+                   && Helper.IsExistTextByCSS(this.cssAnnouncement) && (TestNavigate.CountOfElements <= this.MaxCountOfPROnPage)
+                   && this.CheckLinkOfFile(this.cssLinkToWatchPDF, this.href) && (TestNavigate.CountOfElements <= this.MaxCountOfPROnPage)
+                   && this.CheckLinkOfFile(this.cssLinkToDownloadPDF, this.href) && (TestNavigate.CountOfElements <= this.MaxCountOfPROnPage)
                    && this.CheckTitleOnListAndPagePR();
-        }
-
-        private bool IsExistTextByCSS(string cssSelector)
-        {
-            return this.InnerTextOfElementsFromCssSelector(cssSelector).TrueForAll(item => !string.IsNullOrWhiteSpace(item));
-        }
-
-        private List<string> InnerTextOfElementsFromCssSelector(string cssSelector)
-        {
-            var text = new List<string>();
-
-            foreach (var item in this.GetAllElementsByCssSelector(cssSelector))
-            {
-                text.Add(item.Text);
-            }
-
-            this.CountOfElements = text.Count;
-
-            return text;
         }
 
         private bool CheckLinkOfFile(string cssSelector, string attribute)
         {
-            var urls = this.GetValueOfAttribute(cssSelector, attribute);
+            var urls = Helper.GetValueOfAttribute(cssSelector, attribute);
 
             WebRequest request;
             HttpWebResponse response;
@@ -149,23 +197,23 @@
                 sizes.Add(response.ContentLength);
             }
 
-            this.CountOfElements = sizes.Count;
+            TestNavigate.CountOfElements = sizes.Count;
 
             return sizes.TrueForAll(size => size > 0);
         }
 
         private bool CheckTitleOnListAndPagePR()
         {
-            var titlesPROnList = this.InnerTextOfElementsFromCssSelector(this.cssHeaderPR);
+            var titlesPROnList = Helper.InnerTextOfElementsFromCssSelector(this.cssHeaderPR);
 
             // Click on scroll to up. Otherwise first link to page of press-release is not clickable.
-            TestNavigate.driver.ExecuteScript("scroll(250, 0)");
+            TestNavigate.Driver.ExecuteScript("scroll(250, 0)");
 
-            var linksToPagePR = TestNavigate.driver.FindElementsByCssSelector(this.cssLinkToPagePR);
+            var linksToPagePR = TestNavigate.Driver.FindElementsByCssSelector(this.cssLinkToPagePR);
             var titlesPROnPage = this.GetTitlesOfPROnPages(linksToPagePR);
 
-            this.PostHandlingForDateOfPR(titlesPROnList, false);
-            this.PostHandlingForDateOfPR(titlesPROnPage, true);
+            Helper.PostHandlingForDateOfPR(titlesPROnList, false);
+            Helper.PostHandlingForDateOfPR(titlesPROnPage, true);
 
             return titlesPROnList.SequenceEqual(titlesPROnPage);
         }
@@ -176,17 +224,19 @@
 
             for (int i = 0; i < linksToPagePR.Count; i++)
             {
-                TestNavigate.driver.Keyboard.PressKey(Keys.Control);
+                TestNavigate.Driver.Keyboard.PressKey(Keys.Control);
 
                 linksToPagePR[i].Click();
-                var prPage = driver.SwitchTo().Window(driver.WindowHandles.Last());
+                var prPage = TestNavigate.Driver.SwitchTo().Window(TestNavigate.Driver.WindowHandles.Last());
 
                 this.TitleOfPROnPage(titlesPROnPage);
 
                 prPage.Close();
 
-                driver.SwitchTo().Window(driver.WindowHandles.First());
-                TestNavigate.driver.Keyboard.PressKey(Keys.Control);
+                TestNavigate.Driver.SwitchTo().Window(TestNavigate.Driver.WindowHandles.First());
+
+                // Press on Control otherwise link opens on current tab.
+                TestNavigate.Driver.Keyboard.PressKey(Keys.Control);
             }
 
             return titlesPROnPage;
@@ -194,53 +244,49 @@
 
         private void TitleOfPROnPage(List<string> titlesPROnPage)
         {
-            titlesPROnPage.Add(this.InnerTextOfElementsFromCssSelector(this.cssTitleOfPROnpage).First());
-            var date = this.InnerTextOfElementsFromCssSelector(this.cssDateOfPROnpage).First();
+            titlesPROnPage.Add(Helper.InnerTextOfElementsFromCssSelector(this.cssTitleOfPROnpage).First());
+            var date = Helper.InnerTextOfElementsFromCssSelector(this.cssDateOfPROnpage).First();
 
             titlesPROnPage.Insert(titlesPROnPage.Count - 1, date);
         }
 
-        private void PostHandlingForDateOfPR(List<string> titlesOfPR, bool isPageOfPR)
+        private bool CheckRangeDateOfPRByFilter()
         {
-            if (!isPageOfPR)
+            var fromDate = Helper.GetAllElementsByCssSelector(this.cssDateFrom).First();
+            var toDate = Helper.GetAllElementsByCssSelector(this.cssDateTo).First();
+
+            fromDate.SendKeys(this.DateFrom.ToString(this.PatternDate));
+            toDate.SendKeys(this.DateTo.ToString(this.PatternDate));
+
+            var button = Helper.GetAllElementsByCssSelector(this.cssButtonFilter).First();
+
+            // Sometimes test failed because of button isn't clickable.
+            TestNavigate.Driver.ExecuteScript("scroll(250, 0)");
+            button.Click();
+
+            // Need handling of case when search found 0 items. There aren't press-releases.
+            // For this to wait loading of page and to count found items.
+            Helper.IsElementVisible(By.CssSelector(this.cssCopyRight));
+
+            if (!(Helper.GetAllElementsByCssSelector(this.cssHeaderPR).Count == 0))
             {
-                for (int i = 0; i < titlesOfPR.Count; i += 2)
+                // Wait loading of DOM with new elements.
+                Helper.IsElementVisible(By.CssSelector(this.cssHeaderPR));
+
+                var titlesPROnList = Helper.InnerTextOfElementsFromCssSelector(this.cssHeaderPR);
+                Helper.PostHandlingForDateOfPR(titlesPROnList, false);
+
+                var dateOfPR = new List<DateTime>();
+
+                for (int i = 0; i < titlesPROnList.Count; i += 2)
                 {
-                    titlesOfPR[i] = Regex.Replace(titlesOfPR[i], " -", string.Empty);
+                    dateOfPR.Add(DateTime.Parse(titlesPROnList.ElementAt(i)));
                 }
+
+                return dateOfPR.TrueForAll(date => date >= this.DateFrom && date <= this.DateTo);
             }
 
-            DateTime parse;
-
-            var culture = baseUrl.Contains(".ru") ? new CultureInfo("ru-RU") : new CultureInfo("en-US");
-
-            for (int i = 0; i < titlesOfPR.Count; i += 2)
-            {
-                DateTime.TryParse(titlesOfPR[i], culture, DateTimeStyles.AllowWhiteSpaces, out parse);
-                titlesOfPR[i] = parse.ToShortDateString();
-            }
-        }
-
-        private List<string> GetValueOfAttribute(string cssSelector, string attribute)
-        {
-            var value = new List<string>();
-
-            foreach (var item in this.GetAllElementsByCssSelector(cssSelector))
-            {
-                value.Add(item.GetAttribute(attribute));
-            }
-
-            return value;
-        }
-
-        private ReadOnlyCollection<IWebElement> GetAllElementsByCssSelector(string cssSelector)
-        {
-            return driver.FindElementsByCssSelector(cssSelector);
-        }
-
-        private void IsElementVisible(By element)
-        {
-            new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutInSec)).Until(ExpectedConditions.VisibilityOfAllElementsLocatedBy(element));
+            return true;
         }
     }
 }
