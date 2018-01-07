@@ -62,19 +62,28 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
+          <Private>False</Private>
+        </Reference>
       </ItemGroup>
     </Otherwise>
   </Choose>
   <ItemGroup>
     <Compile Include="Helper.cs" />
-    <Compile Include="TestNavigate.cs" />
+    <Compile Include="Pages\BasePage.cs" />
+    <Compile Include="Pages\ListOfPR.cs" />
+    <Compile Include="Pages\PageOfPR.cs" />
+    <Compile Include="Tests\TestNavigate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tests\BaseTest.cs" />
+    <Compile Include="WebDriver\BaseElement.cs" />
+    <Compile Include="WebDriver\WebDriver.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

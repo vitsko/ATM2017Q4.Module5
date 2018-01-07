@@ -6,13 +6,14 @@
     using System.Configuration;
     using System.Globalization;
     using System.Linq;
-    using System.Net;
     using NUnit.Framework;
     using OpenQA.Selenium;
     using OpenQA.Selenium.Chrome;
+    using Pages;
+    using Tests;
 
     [TestFixture]
-    public class TestNavigate
+    internal class TestNavigate : BaseTest
     {
         private static ChromeDriver driver;
         private static CultureInfo culture;
@@ -120,86 +121,26 @@
             }
         }
 
-        [SetUp]
-        public void SetupTest()
-        {
-            TestNavigate.Driver.Navigate().GoToUrl(baseUrl);
-            TestNavigate.Driver.Manage().Window.Maximize();
-        }
-
-        [TearDown]
-        public void CleanUp()
-        {
-            TestNavigate.Driver.Quit();
-        }
-
-        [Test]
+        //[Test]
         public void TestListOfPressReleases()
         {
-            Assert.IsTrue(this.BlockIsVisible());
-            Assert.AreEqual(this.DefaultCountOfPressReleases(), TestNavigate.countOfPressReleases);
-            Assert.IsTrue(this.LoadMore() <= this.MaxCountOfPROnPage);
             Assert.IsTrue(this.AboutPR());
             Assert.IsTrue(this.CheckRangeDateOfPRByFilter());
         }
 
-        public bool BlockIsVisible()
+        [Test]
+        public void Test()
         {
-            Helper.IsElementVisible(this.listOfReleasesXPhath);
-            return TestNavigate.Driver.FindElement(this.listOfReleasesXPhath).Displayed;
+            var listPR = new ListOfPR();
+            listPR.ClickLoadMore();
+            listPR.WatchInfoOfPressReleases();
         }
 
-        private int DefaultCountOfPressReleases()
-        {
-            return TestNavigate.Driver.FindElements(this.pressReleaseXPath).Count;
-        }
 
-        private int LoadMore()
-        {
-            try
-            {
-                for (int i = 0; i <= TestNavigate.countOfClickMoreLoad - 1; i++)
-                {
-                    Helper.IsElementVisible(this.buttonLoadMoreXPath);
-                    TestNavigate.Driver.FindElement(this.buttonLoadMoreXPath).Click();
-                    Helper.IsElementVisible(this.buttonLoadMoreXPath);
-                }
-            }
-            catch { }
-
-            return TestNavigate.Driver.FindElements(this.pressReleasesAfterLoadingXPath).Count;
-        }
 
         private bool AboutPR()
         {
-            return Helper.IsExistTextByCSS(this.cssHeaderPR) && (TestNavigate.CountOfElements / 2 <= this.MaxCountOfPROnPage)
-                   && this.CheckLinkOfFile(this.cssImagePR, this.srcImage) && (TestNavigate.CountOfElements <= this.MaxCountOfPROnPage)
-                   && Helper.IsExistTextByCSS(this.cssAnnouncement) && (TestNavigate.CountOfElements <= this.MaxCountOfPROnPage)
-                   && this.CheckLinkOfFile(this.cssLinkToWatchPDF, this.href) && (TestNavigate.CountOfElements <= this.MaxCountOfPROnPage)
-                   && this.CheckLinkOfFile(this.cssLinkToDownloadPDF, this.href) && (TestNavigate.CountOfElements <= this.MaxCountOfPROnPage)
-                   && this.CheckTitleOnListAndPagePR();
-        }
-
-        private bool CheckLinkOfFile(string cssSelector, string attribute)
-        {
-            var urls = Helper.GetValueOfAttribute(cssSelector, attribute);
-
-            WebRequest request;
-            HttpWebResponse response;
-
-            var sizes = new List<long>();
-
-            for (int i = 0; i < urls.Count; i++)
-            {
-                request = WebRequest.Create(urls.ElementAt(i));
-                response = (HttpWebResponse)request.GetResponse();
-
-                sizes.Add(response.ContentLength);
-            }
-
-            TestNavigate.CountOfElements = sizes.Count;
-
-            return sizes.TrueForAll(size => size > 0);
+            return this.CheckTitleOnListAndPagePR();
         }
 
         private bool CheckTitleOnListAndPagePR()
@@ -227,11 +168,11 @@
                 TestNavigate.Driver.Keyboard.PressKey(Keys.Control);
 
                 linksToPagePR[i].Click();
-                var prPage = TestNavigate.Driver.SwitchTo().Window(TestNavigate.Driver.WindowHandles.Last());
+                var pageOfPR = TestNavigate.Driver.SwitchTo().Window(TestNavigate.Driver.WindowHandles.Last());
 
                 this.TitleOfPROnPage(titlesPROnPage);
 
-                prPage.Close();
+                pageOfPR.Close();
 
                 TestNavigate.Driver.SwitchTo().Window(TestNavigate.Driver.WindowHandles.First());
 
