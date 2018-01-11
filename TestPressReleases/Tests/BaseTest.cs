@@ -1,23 +1,24 @@
 ﻿namespace TestPressReleases.Tests
 {
-    using System.Configuration;
     using NUnit.Framework;
-    using TestPressReleases.WebDriver;
+    using OpenQA.Selenium.Chrome;
+    using WebDriver;
 
     [TestFixture]
     internal class BaseTest
     {
-        private static string baseUrl = ConfigurationManager.AppSettings["baseUrl"];
+        protected static ChromeDriver driver = WebDriver.Instance;
 
         [SetUp]
         public void SetupTest()
         {
-            WebDriver.NavigateTo(BaseTest.baseUrl);
+            driver = WebDriver.Instance;
+            WebDriver.NavigateTo(Config.StartUrl);
             WebDriver.WindowMaximise();
         }
 
         [TearDown]
-        public void CleanUp()
+        public void CleanUpTestClass()
         {
             WebDriver.Quit();
         }

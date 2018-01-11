@@ -1,21 +1,18 @@
 ﻿namespace TestPressReleases.WebDriver
 {
-    using System;
-    using System.Configuration;
-    using OpenQA.Selenium;
     using OpenQA.Selenium.Chrome;
+    using OpenQA.Selenium.Interactions;
 
-    internal static class WebDriver
+    internal class WebDriver
     {
         private static ChromeDriver driver;
 
-        static WebDriver()
+        private WebDriver()
         {
-            WebDriver.TimeoutForElement = int.Parse(ConfigurationManager.AppSettings["TimeoutInSec"]);
             WebDriver.driver = new ChromeDriver();
         }
 
-        internal static int TimeoutForElement { get; private set; }
+        internal static ChromeDriver Instance => driver ?? (WebDriver.driver = new ChromeDriver());
 
         internal static void WindowMaximise()
         {
@@ -27,14 +24,26 @@
             WebDriver.driver.Navigate().GoToUrl(url);
         }
 
-        internal static IWebDriver GetDriver()
+        internal static ChromeDriver GetDriver()
         {
             return WebDriver.driver;
+        }
+
+        internal static void Close()
+        {
+            WebDriver.driver.Close();
         }
 
         internal static void Quit()
         {
             WebDriver.driver.Quit();
+            WebDriver.driver = null;
+        }
+
+        internal static void HoverOnElement(BaseElement element)
+        {
+            Actions builder = new Actions(WebDriver.GetDriver());
+            builder.MoveToElement(element.FindElement(element.Locator)).Build().Perform();
         }
     }
 }

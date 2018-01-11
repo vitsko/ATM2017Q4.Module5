@@ -1,7 +1,7 @@
 ﻿namespace TestPressReleases.Pages
 {
     using OpenQA.Selenium;
-    using TestPressReleases.WebDriver;
+    using WebDriver;
 
     internal class BasePage
     {
@@ -11,7 +11,6 @@
             this.Title = title;
             this.AssertIsOpen();
         }
-
 
         protected By TitleLocator { get; set; }
 

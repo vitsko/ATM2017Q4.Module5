@@ -1,12 +1,12 @@
 ﻿namespace TestPressReleases.WebDriver
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Drawing;
+    using System.Linq;
     using OpenQA.Selenium;
     using OpenQA.Selenium.Support.UI;
-    using System.Collections.Generic;
-    using System.Linq;
 
     internal class BaseElement : IWebElement
     {
@@ -35,9 +35,9 @@
 
         public bool Displayed { get; }
 
-        protected string Name { get; set; }
-
         internal By Locator { get; private set; }
+
+        protected string Name { get; set; }
 
         protected IWebElement Element { get; set; }
 
@@ -63,7 +63,7 @@
 
         public void WaitForIsVisible()
         {
-            new WebDriverWait(WebDriver.GetDriver(), TimeSpan.FromSeconds(WebDriver.TimeoutForElement)).Until(ExpectedConditions.VisibilityOfAllElementsLocatedBy(this.Locator));
+            new WebDriverWait(WebDriver.GetDriver(), TimeSpan.FromSeconds(int.Parse(Config.Timeout))).Until(ExpectedConditions.VisibilityOfAllElementsLocatedBy(this.Locator));
         }
 
         public void Clear()
@@ -73,7 +73,7 @@
 
         public void SendKeys(string text)
         {
-            throw new NotImplementedException();
+            WebDriver.GetDriver().FindElement(this.Locator).SendKeys(text);
         }
 
         public void Submit()
@@ -85,7 +85,6 @@
         {
             this.WaitForIsVisible();
             WebDriver.GetDriver().FindElement(this.Locator).Click();
-            this.WaitForIsVisible();
         }
 
         public string GetAttribute(string attributeName)
@@ -121,7 +120,7 @@
             return this.FindElement(this.Locator).Displayed;
         }
 
-        public List<string> GetValueBySpecialFuncSelector(Func<IWebElement, string> selector)
+        internal List<string> GetValueBySpecialFuncSelector(Func<IWebElement, string> selector)
         {
             this.WaitForIsVisible();
 
