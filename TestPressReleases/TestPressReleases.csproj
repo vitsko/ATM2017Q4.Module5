@@ -74,7 +74,7 @@
     <Compile Include="Pages\ListOfPR.cs" />
     <Compile Include="Pages\PageOfPR.cs" />
     <Compile Include="Pages\MainPage.cs" />
-    <Compile Include="Tests\TestNavigate.cs" />
+    <Compile Include="Tests\TestContentBlockOfPressReleases.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\BaseTest.cs" />
     <Compile Include="WebDriver\BaseElement.cs" />
@@ -82,7 +82,9 @@
     <Compile Include="WebDriver\WebDriver.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
