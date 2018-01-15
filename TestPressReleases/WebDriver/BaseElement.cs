@@ -6,7 +6,6 @@
     using System.Drawing;
     using System.Linq;
     using OpenQA.Selenium;
-    using OpenQA.Selenium.Support.UI;
 
     internal class BaseElement : IWebElement
     {
@@ -43,7 +42,7 @@
 
         public string GetText()
         {
-            this.WaitForIsVisible();
+           WebDriver.WaitForIsVisible(this.Locator);
             return this.Element.Text;
         }
 
@@ -59,11 +58,6 @@
             }
 
             return this.Element;
-        }
-
-        public void WaitForIsVisible()
-        {
-            new WebDriverWait(WebDriver.GetDriver(), TimeSpan.FromSeconds(int.Parse(Config.Timeout))).Until(ExpectedConditions.VisibilityOfAllElementsLocatedBy(this.Locator));
         }
 
         public void Clear()
@@ -83,7 +77,7 @@
 
         public void Click()
         {
-            this.WaitForIsVisible();
+           WebDriver.WaitForIsVisible(this.Locator);
             WebDriver.GetDriver().FindElement(this.Locator).Click();
         }
 
@@ -116,13 +110,13 @@
 
         public bool IsVisible()
         {
-            this.WaitForIsVisible();
+           WebDriver.WaitForIsVisible(this.Locator);
             return this.FindElement(this.Locator).Displayed;
         }
 
         internal List<string> GetValueBySpecialFuncSelector(Func<IWebElement, string> selector)
         {
-            this.WaitForIsVisible();
+           WebDriver.WaitForIsVisible(this.Locator);
 
             return this.FindElements(this.Locator)
                        .ToList()

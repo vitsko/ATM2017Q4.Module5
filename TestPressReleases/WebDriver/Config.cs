@@ -25,7 +25,7 @@
 
         internal static int CountOfClickMoreLoad => int.Parse(ConfigurationManager.AppSettings["CountOfClickMoreLoad"]);
 
-        internal static int MaxCountOfPROnPage => (Config.CountOfClickMoreLoad + 1) * Config.CountOfPressReleases;
+        internal static int MaxCountOfPressReleasesOnPage => (Config.CountOfClickMoreLoad + 1) * Config.CountOfPressReleases;
 
         internal static DateTime LastMonth => Config.today.AddDays(-DateTime.DaysInMonth(Config.today.Year, Config.today.Month));
 

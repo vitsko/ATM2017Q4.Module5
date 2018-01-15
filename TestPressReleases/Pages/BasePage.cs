@@ -19,7 +19,7 @@
         private void AssertIsOpen()
         {
             var label = new BaseElement(this.TitleLocator, this.Title);
-            label.WaitForIsVisible();
+            WebDriver.WaitForIsVisible(this.TitleLocator);
         }
     }
 }

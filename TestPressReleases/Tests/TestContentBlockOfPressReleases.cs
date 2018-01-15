@@ -7,19 +7,18 @@
     [TestFixture]
     internal class TestContentBlockOfPressReleases : BaseTest
     {
+        private static PageOfPressReleases ListOfPressReleases => (PageOfPressReleases)SitePages.NavigatePageTo(PageOfPressReleases.MenuPressCenter, PageOfPressReleases.MenuPressReleases, SitePages.Pages.PageOfPressReleases);
+
         [Test, Category("VisibilityOfElements")]
         public void ListOfPressReleasesIsVisible()
         {
-            var pageOfPressReleases = ListOfPR.GoToPage();
-
-            Assert.IsTrue(pageOfPressReleases.PressReleasesIsVisible());
+            Assert.IsTrue(ListOfPressReleases.PressReleasesIsVisible());
         }
 
         [Test, Category("CountElements")]
         public void DefaultCountOfPressReleases()
         {
-            var pageOfList = ListOfPR.GoToPage();
-            var defaultCount = pageOfList.CountOfPressReleases();
+            var defaultCount = ListOfPressReleases.CountOfPressReleases();
 
             Assert.AreEqual(defaultCount, Config.DefaultCountOfPressReleases);
         }
@@ -27,75 +26,59 @@
         [Test, Category("CountElements")]
         public void CountOfPressReleasesAfterClickMore()
         {
-            var pageListOfPR = ListOfPR.GoToPage();
+            var page = ListOfPressReleases.ClickLoadMore();
 
-            pageListOfPR.ClickLoadMore();
+            var count = page.CountOfPressReleases();
 
-            var count = pageListOfPR.CountOfPressReleases();
-
-            Assert.IsTrue(count <= Config.MaxCountOfPROnPage);
+            Assert.IsTrue(count <= Config.MaxCountOfPressReleasesOnPage);
         }
 
         [Test, Category("ObligatoryData")]
         public void TitleOfPressReleaseIsNotNull()
         {
-            var page = ListOfPR.GoToPage();
-
-            var dataOfTitles = page.WatchTitlesOfPressReleases();
+            var dataOfTitles = ListOfPressReleases.WatchTitlesOfPressReleases();
 
             Assert.IsTrue(dataOfTitles.TrueForAll(value => !string.IsNullOrWhiteSpace(value))
-                          && dataOfTitles.Count / 2 <= Config.MaxCountOfPROnPage);
+                          && dataOfTitles.Count / 2 <= Config.MaxCountOfPressReleasesOnPage);
         }
 
         [Test, Category("CorrectLinks")]
         public void CorrectLinkToImageOfPressReleases()
         {
-            var page = ListOfPR.GoToPage();
-
-            Assert.IsTrue(page.IsCorrectLinkToImageOfPressReleases());
+            Assert.IsTrue(ListOfPressReleases.IsCorrectLinkToImageOfPressReleases());
         }
 
         [Test, Category("ObligatoryData")]
         public void AnnouncementOfPressReleaseIsNotNull()
         {
-            var page = ListOfPR.GoToPage();
-
-            var announcement = page.WatchAnnouncementsOfPressReleases();
+            var announcement = ListOfPressReleases.WatchAnnouncementsOfPressReleases();
 
             Assert.IsTrue(announcement.TrueForAll(value => !string.IsNullOrWhiteSpace(value))
-                          && announcement.Count / 2 <= Config.MaxCountOfPROnPage);
+                          && announcement.Count / 2 <= Config.MaxCountOfPressReleasesOnPage);
         }
 
         [Test, Category("CorrectLinks")]
         public void CorrectLinkToWatchPDFOfPressReleases()
         {
-            var page = ListOfPR.GoToPage();
-
-            Assert.IsTrue(page.IsCorrectLinkToWatchPDFOfPressReleases());
+            Assert.IsTrue(ListOfPressReleases.IsCorrectLinkToWatchPDFOfPressReleases());
         }
 
         [Test, Category("CorrectLinks")]
         public void CorrectLinkToDownloadPDFOfPressReleases()
         {
-            var page = ListOfPR.GoToPage();
-
-            Assert.IsTrue(page.IsCorrectLinkToDownloadPDFOfPressReleases());
+            Assert.IsTrue(ListOfPressReleases.IsCorrectLinkToDownloadPDFOfPressReleases());
         }
 
         [Test, Category("ObligatoryData")]
         public void MatchTitleOfPressReleasesOnListAndPage()
         {
-            var page = ListOfPR.GoToPage();
-
-            Assert.IsTrue(page.IsCorrectTitlesOnListAndPageOfPressRelease());
+            Assert.IsTrue(ListOfPressReleases.IsCorrectTitlesOnListAndPageOfPressRelease());
         }
 
         [Test, Category("CountElements")]
         public void CorrectFilteringByDateOfPressReleases()
         {
-            var page = ListOfPR.GoToPage();
-
-            var afterFiltering = page.FilterByDate();
+            var afterFiltering = ListOfPressReleases.FilterByDate();
 
             Assert.IsTrue(afterFiltering.MatchDateOfResultFilteringWithDateOfFilters());
         }
