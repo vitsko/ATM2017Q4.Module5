@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Globalization;
     using System.Linq;
     using OpenQA.Selenium;
@@ -11,17 +10,18 @@
 
     internal class PageOfPressReleases : BasePage
     {
+        internal static readonly string XpathToImageOfAnnouncement = "(//div[@class='panel-body'])[{0}]//div[@class='image']//img";
+        internal static readonly string AttributeSrc = "src";
+        internal static readonly string XpathToLinkToWatchPDF = "(//a[contains(@class,'icon-s-flipbook-pdf_round')])[{0}]";
+        internal static readonly string XpathLinkToDownloadPDF = "(//a[contains(@class,'icon-s-download_round')])[{0}]";
+        internal static readonly string AttributeHref = "href";
+
         internal static readonly BaseElement MenuPressCenter = new BaseElement(By.XPath("//li[@id='435aa1d6-2ddd-43b5-9564-3a986dd3d526']"));
         internal static readonly BaseElement MenuPressReleases = new BaseElement(By.XPath(string.Format("//a[text()='{0}']", Config.MenuPressReleases)));
-        internal static readonly BaseElement PressReleases = new BaseElement(By.ClassName("pressrelease-list-widget"));
 
+        private static readonly BaseElement PressReleases = new BaseElement(By.ClassName("pressrelease-list-widget"));
         private static readonly BaseElement TitleOfPressReleases = new BaseElement(By.XPath("//div[@class='panel-heading']//span"));
-        private static readonly BaseElement LinksOfImage = new BaseElement(By.XPath("//div[@class='panel-body']//div[@class='image']//img"));
-        private static readonly string AttributeSrc = "src";
         private static readonly BaseElement Announcement = new BaseElement(By.XPath("//div[@class='tableOverflow']"));
-        private static readonly BaseElement LinkToWatchPDF = new BaseElement(By.XPath("//a[contains(@class,'icon-s-flipbook-pdf_round')]"));
-        private static readonly BaseElement LinkToDownloadPDF = new BaseElement(By.XPath("//a[contains(@class,'icon-s-download_round')]"));
-        private static readonly string AttributeHref = "href";
 
         [FindsBy(How = How.XPath, Using = "//button[contains(@class, 'load-more-button')]")]
         private IWebElement loadMore;
@@ -42,14 +42,13 @@
         private IWebElement filterButtonApply;
 
         private string patternDate;
-        private List<DateTime> dateOfPressReleases;
 
         internal PageOfPressReleases() : base(PressReleases.Locator, "Press Releases")
         {
             PageFactory.InitElements(WebDriver.GetDriver(), this);
         }
 
-        private DateTime DateFrom
+        internal DateTime DateFrom
         {
             get
             {
@@ -60,7 +59,7 @@
             }
         }
 
-        private DateTime DateTo
+        internal DateTime DateTo
         {
             get
             {
@@ -71,7 +70,7 @@
             }
         }
 
-        private string PatternDate
+        internal string PatternDate
         {
             get
             {
@@ -82,11 +81,6 @@
 
                 return this.patternDate;
             }
-        }
-
-        internal bool PressReleasesIsVisible()
-        {
-            return PageOfPressReleases.PressReleases.IsVisible();
         }
 
         internal int CountOfPressReleases()
@@ -108,35 +102,58 @@
 
         internal List<string> WatchTitlesOfPressReleases()
         {
-            return PageOfPressReleases.TitleOfPressReleases.GetValueBySpecialFuncSelector(iwebElement => iwebElement.Text);
+            var titles = PageOfPressReleases.TitleOfPressReleases.GetValueBySpecialFuncSelector(iwebElement => iwebElement.Text);
+
+            Helper.PostHandlingForDateOfPressReleases(titles, false);
+            Helper.JoinStringsInListByPair(titles);
+
+            return titles;
         }
 
-        internal bool IsCorrectLinkToImageOfPressReleases()
+        internal Dictionary<string, long> GetSizeOfElementForPressReleases(string xpath, string attribute)
         {
-            return Helper.CheckLinkOfFile(PageOfPressReleases.LinksOfImage, PageOfPressReleases.AttributeSrc);
+            var titles = this.WatchTitlesOfPressReleases();
+            var pressReleasesTab = WebDriver.GetDriver().FindElements(By.XPath("//div[@role='tablist']")).ToList();
+
+            Dictionary<string, long> titleOfPressReleaseAndSizeOfElement = new Dictionary<string, long>();
+
+            for (int i = 0; i < pressReleasesTab.Count; i++)
+            {
+                var elementsWithUrl = pressReleasesTab.ElementAt(i).FindElements(By.XPath(string.Format(xpath, i + 1)));
+
+                if (elementsWithUrl.Count != 0)
+                {
+                    var url = elementsWithUrl.First().GetAttribute(attribute);
+                    var contentLength = Helper.GetContentLengthForElementOfPressReleaseByLink(url);
+
+                    titleOfPressReleaseAndSizeOfElement.Add(titles.ElementAt(i), contentLength);
+                }
+            }
+
+            return titleOfPressReleaseAndSizeOfElement;
         }
 
-        internal List<string> WatchAnnouncementsOfPressReleases()
+        internal Dictionary<string, string> GetAnnouncementsOfPressReleases()
         {
-            return PageOfPressReleases.Announcement.GetValueBySpecialFuncSelector(iwebElement => iwebElement.Text);
+            var titles = this.WatchTitlesOfPressReleases();
+            var announcements = PageOfPressReleases.Announcement.GetValueBySpecialFuncSelector(iwebElement => iwebElement.Text);
+
+            Dictionary<string, string> titlesAndAnnouncements = new Dictionary<string, string>();
+
+            for (int i = 0; i < titles.Count; i++)
+            {
+                titlesAndAnnouncements.Add(titles.ElementAt(i), announcements.ElementAt(i));
+            }
+
+            return titlesAndAnnouncements;
         }
 
-        internal bool IsCorrectLinkToWatchPDFOfPressReleases()
+        internal List<IWebElement> GetElementsOfLinkToPageOfPressRelease()
         {
-            return Helper.CheckLinkOfFile(PageOfPressReleases.LinkToWatchPDF, PageOfPressReleases.AttributeHref);
+            return this.linkToPageOfPressRelease.FindElements(By.XPath("//a[contains(@class,'icon-s-chevron-link')]")).ToList();
         }
 
-        internal bool IsCorrectLinkToDownloadPDFOfPressReleases()
-        {
-            return Helper.CheckLinkOfFile(PageOfPressReleases.LinkToDownloadPDF, PageOfPressReleases.AttributeHref);
-        }
-
-        internal bool IsCorrectTitlesOnListAndPageOfPressRelease()
-        {
-            return this.CheckTitleOnListAndPageOfPressRelease();
-        }
-
-        internal PageOfPressReleases FilterByDate()
+        internal Dictionary<string, DateTime> FilterByDate()
         {
             this.calendarFrom.SendKeys(this.DateFrom.ToString(this.PatternDate));
             this.calendarTo.SendKeys(this.DateTo.ToString(this.PatternDate));
@@ -149,71 +166,27 @@
             // For this to wait loading of page and to count found items.
             WebDriver.WaitForIsVisible(By.XPath("//div[contains(@class,'text-right')]"));
 
+            var titleAndDatime = new Dictionary<string, DateTime>();
+
             if (PageOfPressReleases.TitleOfPressReleases.FindElements(PageOfPressReleases.TitleOfPressReleases.Locator).Count != 0)
             {
                 // Wait loading of DOM with new elements.
                 PageOfPressReleases.TitleOfPressReleases.IsVisible();
 
-                var titlesPressReleasesOnList = PageOfPressReleases.TitleOfPressReleases.GetValueBySpecialFuncSelector(iwebElement => iwebElement.Text);
-                Helper.PostHandlingForDateOfPressReleases(titlesPressReleasesOnList, false);
+                var textOfTitle = this.WatchTitlesOfPressReleases();
 
-                this.dateOfPressReleases = new List<DateTime>();
+                var titlesAndDatePressReleasesOnList = PageOfPressReleases.TitleOfPressReleases.GetValueBySpecialFuncSelector(iwebElement => iwebElement.Text);
+                Helper.PostHandlingForDateOfPressReleases(titlesAndDatePressReleasesOnList, false);
 
-                for (int i = 0; i < titlesPressReleasesOnList.Count; i += 2)
+                List<string> onlyDate = Helper.GetListWithOnlySomeDeltaOfIndex(titlesAndDatePressReleasesOnList, 2);
+
+                for (int i = 0; i < textOfTitle.Count; i++)
                 {
-                    this.dateOfPressReleases.Add(DateTime.Parse(titlesPressReleasesOnList.ElementAt(i)));
+                    titleAndDatime.Add(textOfTitle.ElementAt(i), DateTime.Parse(onlyDate.ElementAt(i)));
                 }
             }
 
-            return this;
-        }
-
-        internal bool MatchDateOfResultFilteringWithDateOfFilters()
-        {
-            return this.dateOfPressReleases.TrueForAll(date => date >= this.DateFrom && date <= this.DateTo);
-        }
-
-        private bool CheckTitleOnListAndPageOfPressRelease()
-        {
-            var titlesPressReleasesFromList = this.WatchTitlesOfPressReleases();
-
-            // Click on scroll to up. Otherwise first link to page of press-release is not clickable.
-            WebDriver.GetDriver().ExecuteScript("scroll(250, 0)");
-
-            var linksToPageOfPressReleases = this.linkToPageOfPressRelease.FindElements(By.XPath("//a[contains(@class,'icon-s-chevron-link')]"));
-            var titlesOfPressReleasesOnPage = this.GetTitlesOfPressReleasesOnPages(linksToPageOfPressReleases);
-
-            Helper.PostHandlingForDateOfPressReleases(titlesPressReleasesFromList, false);
-            Helper.PostHandlingForDateOfPressReleases(titlesOfPressReleasesOnPage, true);
-
-            return titlesPressReleasesFromList.SequenceEqual(titlesOfPressReleasesOnPage);
-        }
-
-        private List<string> GetTitlesOfPressReleasesOnPages(ReadOnlyCollection<IWebElement> linksToPageOfPressRelease)
-        {
-            var titlesOfPressReleasesOnPage = new List<string>();
-
-            for (int i = 0; i < linksToPageOfPressRelease.Count; i++)
-            {
-                WebDriver.GetDriver().Keyboard.PressKey(Keys.Control);
-
-                linksToPageOfPressRelease[i].Click();
-
-                var windowsHandles = WebDriver.GetDriver().WindowHandles;
-                var webDriverForPageOfPressRelease = WebDriver.GetDriver().SwitchTo().Window(windowsHandles.Last());
-
-                var pageOfPressRelease = new PageOfPressRelease();
-                titlesOfPressReleasesOnPage.AddRange(pageOfPressRelease.TitleOfPressReleaseOnPage());
-
-                webDriverForPageOfPressRelease.Close();
-
-                WebDriver.GetDriver().SwitchTo().Window(windowsHandles.First());
-
-                // Press on Control otherwise link opens on current tab.
-                WebDriver.GetDriver().Keyboard.PressKey(Keys.Control);
-            }
-
-            return titlesOfPressReleasesOnPage;
+            return titleAndDatime;
         }
     }
 }

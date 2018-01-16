@@ -1,6 +1,8 @@
 ﻿namespace TestPressReleases.WebDriver
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using OpenQA.Selenium;
     using OpenQA.Selenium.Chrome;
     using OpenQA.Selenium.Interactions;
@@ -52,6 +54,17 @@
         {
             Actions builder = new Actions(WebDriver.GetDriver());
             builder.MoveToElement(element.FindElement(element.Locator)).Build().Perform();
+        }
+
+        internal static IWebDriver OpenLinkInNewTab(IWebElement element, out List<string> windowsHandles)
+        {
+            WebDriver.GetDriver().Keyboard.PressKey(Keys.Control);
+
+            element.Click();
+
+            windowsHandles = WebDriver.GetDriver().WindowHandles.ToList();
+
+            return WebDriver.GetDriver().SwitchTo().Window(windowsHandles.Last());
         }
     }
 }

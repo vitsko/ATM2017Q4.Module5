@@ -10,9 +10,9 @@
 
     internal static class Helper
     {
-        internal static void PostHandlingForDateOfPressReleases(List<string> titlesOfPressReleases, bool isPageOfPressReleases)
+        internal static void PostHandlingForDateOfPressReleases(List<string> titlesOfPressReleases, bool isPageOfPressRelease)
         {
-            if (!isPageOfPressReleases)
+            if (!isPageOfPressRelease)
             {
                 for (int i = 0; i < titlesOfPressReleases.Count; i += 2)
                 {
@@ -29,24 +29,47 @@
             }
         }
 
-        internal static bool CheckLinkOfFile(BaseElement element, string attribute)
+        internal static long GetContentLengthForElementOfPressReleaseByLink(string url)
         {
-            var urls = element.GetValueBySpecialFuncSelector(iwebElement => iwebElement.GetAttribute(attribute));
-
-            WebRequest request;
-            HttpWebResponse response;
-
-            var sizes = new List<long>();
-
-            for (int i = 0; i < urls.Count; i++)
+            if (!string.IsNullOrWhiteSpace(url))
             {
-                request = WebRequest.Create(urls.ElementAt(i));
-                response = (HttpWebResponse)request.GetResponse();
+                var request = WebRequest.Create(url);
+                var response = (HttpWebResponse)request.GetResponse();
 
-                sizes.Add(response.ContentLength);
+                return response.ContentLength;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        internal static void JoinStringsInListByPair(List<string> toPair)
+        {
+            string date;
+            string title;
+
+            for (int i = 0; i < toPair.Count; i++)
+            {
+                date = toPair.ElementAt(0);
+                title = toPair.ElementAt(1);
+
+                toPair.RemoveRange(0, 2);
+
+                toPair.Add(string.Join(" ", new string[] { date, title }));
+            }
+        }
+
+        internal static List<string> GetListWithOnlySomeDeltaOfIndex(List<string> originalList, int deltaIndex)
+        {
+            List<string> valueToReturn = new List<string>();
+
+            for (int i = 0; i < originalList.Count; i += deltaIndex)
+            {
+                valueToReturn.Add(originalList.ElementAt(i));
             }
 
-            return sizes.TrueForAll(size => size > 0);
+            return valueToReturn;
         }
     }
 }

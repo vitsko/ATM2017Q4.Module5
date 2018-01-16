@@ -9,6 +9,8 @@
             PageOfPressReleases
         }
 
+        internal static bool IsOpen { get; set; }
+
         internal static BasePage NavigatePageTo(BaseElement pointMenuToHover, BaseElement pointMenuToClick, SitePages.Pages page)
         {
             WebDriver.HoverOnElement(pointMenuToHover);
@@ -19,6 +21,8 @@
 
         private static BasePage GetPage(Pages page)
         {
+            SitePages.IsOpen = true;
+
             switch (page)
             {
                 case Pages.PageOfPressReleases:

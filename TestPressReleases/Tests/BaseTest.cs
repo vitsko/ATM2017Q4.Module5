@@ -2,6 +2,7 @@
 {
     using NUnit.Framework;
     using OpenQA.Selenium.Chrome;
+    using Pages;
     using WebDriver;
 
     [TestFixture]
@@ -20,6 +21,7 @@
         [TearDown]
         public void CleanUpTestClass()
         {
+            SitePages.IsOpen = false;
             WebDriver.Quit();
         }
     }

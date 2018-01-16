@@ -9,3 +9,5 @@ Release/
 packages/
 *.log
 TestResults/
+*TMP
+*/*.TMP
