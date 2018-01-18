@@ -1,14 +1,14 @@
 ﻿namespace TestPressReleases.Tests
 {
     using NUnit.Framework;
-    using OpenQA.Selenium.Chrome;
+    using OpenQA.Selenium;
     using Pages;
     using WebDriver;
 
     [TestFixture]
     internal class BaseTest
     {
-        protected static ChromeDriver driver = WebDriver.Instance;
+        protected static IWebDriver driver = WebDriver.Instance;
 
         [SetUp]
         public void SetupTest()

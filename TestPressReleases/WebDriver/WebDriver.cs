@@ -6,18 +6,33 @@
     using OpenQA.Selenium;
     using OpenQA.Selenium.Chrome;
     using OpenQA.Selenium.Interactions;
+    using OpenQA.Selenium.Remote;
     using OpenQA.Selenium.Support.UI;
 
     internal class WebDriver
     {
-        private static ChromeDriver driver;
+        private static RemoteWebDriver driver;
 
         private WebDriver()
         {
             WebDriver.driver = new ChromeDriver();
         }
 
-        internal static ChromeDriver Instance => WebDriver.driver ?? (WebDriver.driver = new ChromeDriver());
+        internal static IWebDriver Instance
+        {
+            get
+            {
+                if (WebDriver.driver == null)
+                {
+                    var capability = DesiredCapabilities.Chrome();
+                    capability.SetCapability(CapabilityType.BrowserName, "chrome");
+                    capability.SetCapability(CapabilityType.Platform, new Platform(PlatformType.Windows));
+                    driver = new RemoteWebDriver(new Uri(Config.URLToHubOfSeleniumGrid), capability);
+                }
+
+                return WebDriver.driver;
+            }
+        }
 
         internal static void WindowMaximise()
         {
@@ -29,7 +44,7 @@
             WebDriver.driver.Navigate().GoToUrl(url);
         }
 
-        internal static ChromeDriver GetDriver()
+        internal static RemoteWebDriver GetDriver()
         {
             return WebDriver.driver;
         }

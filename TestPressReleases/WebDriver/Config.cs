@@ -46,6 +46,8 @@
             }
         }
 
+        internal static string URLToHubOfSeleniumGrid => GetEnviromentVar("URLToHubOfSeleniumGrid", "http://localhost:4444/wd/hub");
+
         private static string GetEnviromentVar(string var, string defaultValue)
         {
             return ConfigurationManager.AppSettings[var] ?? defaultValue;
