@@ -29,7 +29,7 @@
             }
         }
 
-        internal static long GetContentLengthForElementOfPressReleaseByLink(string url)
+        internal static long GetContentLengthByLink(string url)
         {
             if (!string.IsNullOrWhiteSpace(url))
             {

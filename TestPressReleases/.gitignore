@@ -9,5 +9,7 @@ Release/
 packages/
 *.log
 TestResults/
-*TMP
+*.TMP
 */*.TMP
+*.jar
+*/*.jar

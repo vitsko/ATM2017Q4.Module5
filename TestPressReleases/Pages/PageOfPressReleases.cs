@@ -32,11 +32,8 @@
         [FindsBy(How = How.XPath, Using = "//a[contains(@class,'icon-s-chevron-link')]")]
         private IWebElement linkToPageOfPressRelease;
 
-        [FindsBy(How = How.Id, Using = "calendar-from")]
-        private IWebElement calendarFrom;
-
-        [FindsBy(How = How.Id, Using = "calendar-to")]
-        private IWebElement calendarTo;
+        private string calendarFromId = "calendar-from";
+        private string calendarToId = "calendar-to";
 
         [FindsBy(How = How.XPath, Using = "//button[contains(@class,'filter-btn')]")]
         private IWebElement filterButtonApply;
@@ -124,7 +121,7 @@
                 if (elementsWithUrl.Count != 0)
                 {
                     var url = elementsWithUrl.First().GetAttribute(attribute);
-                    var contentLength = Helper.GetContentLengthForElementOfPressReleaseByLink(url);
+                    var contentLength = Helper.GetContentLengthByLink(url);
 
                     titleOfPressReleaseAndSizeOfElement.Add(titles.ElementAt(i), contentLength);
                 }
@@ -155,8 +152,8 @@
 
         internal Dictionary<string, DateTime> FilterByDate()
         {
-            this.calendarFrom.SendKeys(this.DateFrom.ToString(this.PatternDate));
-            this.calendarTo.SendKeys(this.DateTo.ToString(this.PatternDate));
+            WebDriver.SetValueByScript("Id", this.calendarFromId, this.DateFrom.ToString(this.PatternDate));
+            WebDriver.SetValueByScript("Id", this.calendarToId, this.DateTo.ToString(this.PatternDate));
 
             // Sometimes test failed because of button isn't clickable.
             WebDriver.GetDriver().ExecuteScript("scroll(250, 0)");

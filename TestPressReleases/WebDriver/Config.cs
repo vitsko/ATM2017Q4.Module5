@@ -46,7 +46,11 @@
             }
         }
 
+        internal static bool IsSeleniumGrid => bool.Parse(GetEnviromentVar("IsSeleniumGrid", "false"));
+
         internal static string URLToHubOfSeleniumGrid => GetEnviromentVar("URLToHubOfSeleniumGrid", "http://localhost:4444/wd/hub");
+
+        internal static string ColorForElement => GetEnviromentVar("ColorForElement", "red");
 
         private static string GetEnviromentVar(string var, string defaultValue)
         {

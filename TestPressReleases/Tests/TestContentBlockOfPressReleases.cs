@@ -16,7 +16,10 @@
             {
                 if (!SitePages.IsOpen)
                 {
-                    page = (PageOfPressReleases)SitePages.NavigatePageTo(PageOfPressReleases.MenuPressCenter, PageOfPressReleases.MenuPressReleases, SitePages.Pages.PageOfPressReleases);
+                    page = (PageOfPressReleases)SitePages.NavigatePageTo(
+                                                                         PageOfPressReleases.MenuPressCenter,
+                                                                         PageOfPressReleases.MenuPressReleases,
+                                                                         SitePages.Pages.PageOfPressReleases);
                 }
 
                 return page;

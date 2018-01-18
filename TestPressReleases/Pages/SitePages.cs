@@ -1,5 +1,6 @@
 ﻿namespace TestPressReleases.Pages
 {
+    using OpenQA.Selenium;
     using WebDriver;
 
     internal class SitePages
@@ -14,6 +15,9 @@
         internal static BasePage NavigatePageTo(BaseElement pointMenuToHover, BaseElement pointMenuToClick, SitePages.Pages page)
         {
             WebDriver.HoverOnElement(pointMenuToHover);
+
+            var elementToClick = pointMenuToClick.FindElement(pointMenuToClick.Locator);
+            WebDriver.SetBackgroundColorForElement(elementToClick);
             pointMenuToClick.Click();
 
             return SitePages.GetPage(page);
