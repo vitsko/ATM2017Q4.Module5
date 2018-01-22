@@ -31,7 +31,12 @@
         {
             var defaultCount = ListOfPressReleases.CountOfPressReleases();
 
-            Assert.AreEqual(defaultCount, Config.DefaultCountOfPressReleases);
+            Assert.AreEqual(
+                            defaultCount,
+                            Config.DefaultCountOfPressReleases,
+                            Resource.DefaultCountOfPressReleases,
+                            defaultCount,
+                            Config.DefaultCountOfPressReleases);
         }
 
         [Test, Category("CountElements")]
@@ -41,27 +46,40 @@
 
             var count = page.CountOfPressReleases();
 
-            Assert.IsTrue(count <= Config.MaxCountOfPressReleasesOnPage);
+            Assert.IsTrue(
+                          count <= Config.MaxCountOfPressReleasesOnPage,
+                          Resource.CountOfPressReleasesAfterClickMore,
+                          count,
+                          Config.MaxCountOfPressReleasesOnPage);
         }
 
         [Test, Category("ObligatoryData")]
         public void TitleOfPressReleaseIsNotNull()
         {
-            var dataOfTitles = ListOfPressReleases.WatchTitlesOfPressReleases();
+            var idAndTitleOfPressReleases = ListOfPressReleases.GetIdAndTitleOfPressReleases();
 
-            Assert.IsTrue(dataOfTitles.TrueForAll(value => !string.IsNullOrWhiteSpace(value)));
+            foreach (var title in idAndTitleOfPressReleases)
+            {
+                Assert.That(
+                            title.Value.All(
+                                            data => !string.IsNullOrWhiteSpace(data)),
+                                           Resource.TitleOfPressReleaseIsNotNull,
+                                            title.Key,
+                                            title.Value.ElementAt(0),
+                                            title.Value.ElementAt(1));
+            }
         }
 
         [Test, Category("CorrectLinks")]
         public void CorrectLinkToImageOfPressReleases()
         {
-            var titleAndSizeOfImageForPressRelease = ListOfPressReleases.GetSizeOfElementForPressReleases(PageOfPressReleases.XpathToImageOfAnnouncement, PageOfPressReleases.AttributeSrc);
+            var idAndSizeOfImageForPressRelease = ListOfPressReleases.GetSizeOfElementForPressReleases(PageOfPressReleases.XpathToImageOfAnnouncement, PageOfPressReleases.AttributeSrc);
 
-            foreach (var item in titleAndSizeOfImageForPressRelease)
+            foreach (var item in idAndSizeOfImageForPressRelease)
             {
                 Assert.That(
                             item.Value != 0,
-                            "Press-release \"{0}\" has incorrect link to image of announcement",
+                            Resource.CorrectLinkToImageOfPressReleases,
                             item.Key);
             }
         }
@@ -69,13 +87,13 @@
         [Test, Category("ObligatoryData")]
         public void AnnouncementOfPressReleaseIsNotNull()
         {
-            var titlesAndAnnouncements = ListOfPressReleases.GetAnnouncementsOfPressReleases();
+            var idAndAnnouncements = ListOfPressReleases.GetAnnouncementsOfPressReleases();
 
-            foreach (var item in titlesAndAnnouncements)
+            foreach (var item in idAndAnnouncements)
             {
                 Assert.That(
                             !string.IsNullOrEmpty(item.Value),
-                            "Press-release \"{0}\" hasn't an announcement",
+                            Resource.AnnouncementOfPressReleaseIsNotNull,
                             item.Key);
             }
         }
@@ -83,13 +101,13 @@
         [Test, Category("CorrectLinks")]
         public void CorrectLinkToWatchPDFOfPressReleases()
         {
-            var titleAndSizeOfPDFForPressRelease = ListOfPressReleases.GetSizeOfElementForPressReleases(PageOfPressReleases.XpathToLinkToWatchPDF, PageOfPressReleases.AttributeHref);
+            var idAndSizeOfPDFForPressRelease = ListOfPressReleases.GetSizeOfElementForPressReleases(PageOfPressReleases.XpathToLinkToWatchPDF, PageOfPressReleases.AttributeHref);
 
-            foreach (var item in titleAndSizeOfPDFForPressRelease)
+            foreach (var item in idAndSizeOfPDFForPressRelease)
             {
                 Assert.That(
                             item.Value != 0,
-                            "Press-release \"{0}\" has incorrect link to link to watch PDF-file",
+                            Resource.CorrectLinkToWatchPDFOfPressReleases,
                             item.Key);
             }
         }
@@ -97,13 +115,13 @@
         [Test, Category("CorrectLinks")]
         public void CorrectLinkToDownloadPDFOfPressReleases()
         {
-            var titleAndSizeOfPDFForPressRelease = ListOfPressReleases.GetSizeOfElementForPressReleases(PageOfPressReleases.XpathLinkToDownloadPDF, PageOfPressReleases.AttributeHref);
+            var idAndSizeOfPDFForPressRelease = ListOfPressReleases.GetSizeOfElementForPressReleases(PageOfPressReleases.XpathLinkToDownloadPDF, PageOfPressReleases.AttributeHref);
 
-            foreach (var item in titleAndSizeOfPDFForPressRelease)
+            foreach (var item in idAndSizeOfPDFForPressRelease)
             {
                 Assert.That(
                             item.Value != 0,
-                            "Press-release \"{0}\" has incorrect link to download PDF-file",
+                            Resource.CorrectLinkToDownloadPDFOfPressReleases,
                             item.Key);
             }
         }
@@ -111,34 +129,34 @@
         [Test, Category("ObligatoryData")]
         public void MatchTitleOfPressReleasesOnListAndPage()
         {
-            var titlesOfPressReleasesFromList = ListOfPressReleases.WatchTitlesOfPressReleases();
+            var idAndTitlesOfPressReleasesFromList = ListOfPressReleases.GetIdAndTitleOfPressReleases();
             var elementsWithLink = ListOfPressReleases.GetElementsOfLinkToPageOfPressRelease();
             var titlesOfPressReleasesOnPage = PageOfPressRelease.GetTitlesOfPressRelease(elementsWithLink);
 
-            for (int i = 0; i < titlesOfPressReleasesFromList.Count; i++)
+            for (int i = 0; i < idAndTitlesOfPressReleasesFromList.Count; i++)
             {
-                var pressReleaseFromList = titlesOfPressReleasesFromList.ElementAt(i);
+                var titlesOfPressReleasesFromList = idAndTitlesOfPressReleasesFromList.ElementAt(i).Value.ToList();
+                Helper.JoinStringsInListByPair(titlesOfPressReleasesFromList);
                 var pressReleaseOnPage = titlesOfPressReleasesOnPage.ElementAt(i);
 
                 StringAssert.AreEqualIgnoringCase(
-                                                  pressReleaseFromList,
+                                                  titlesOfPressReleasesFromList.ElementAt(0),
                                                   pressReleaseOnPage,
-                                                  "Title into list of press-releases \"{0}\" don't match to title on page of press-release \"{1}\".",
-                                                  pressReleaseFromList,
-                                                  pressReleaseOnPage);
+                                                  Resource.MatchTitleOfPressReleasesOnListAndPage,
+                                                  idAndTitlesOfPressReleasesFromList.ElementAt(i).Key);
             }
         }
 
         [Test, Category("CountElements")]
         public void CorrectFilteringByDateOfPressReleases()
         {
-            var afterFiltering = ListOfPressReleases.FilterByDate();
+            var afterFiltering = ListOfPressReleases.FilterPressReleasesByDate();
 
             foreach (var item in afterFiltering)
             {
                 Assert.That(
                             item.Value >= ListOfPressReleases.DateFrom && item.Value <= ListOfPressReleases.DateTo,
-                            "List Of press-releases contains press release \"{0}\" with incorrect date {1}. Correct date is in period [{2} - {3}]",
+                            Resource.CorrectFilteringByDateOfPressReleases,
                             item.Key,
                             item.Value,
                             ListOfPressReleases.DateFrom.ToString(ListOfPressReleases.PatternDate),

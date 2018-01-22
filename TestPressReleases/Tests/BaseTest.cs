@@ -8,7 +8,7 @@
     [TestFixture]
     internal class BaseTest
     {
-        protected static IWebDriver driver = WebDriver.Instance;
+        private static IWebDriver driver = WebDriver.Instance;
 
         [SetUp]
         public void SetupTest()

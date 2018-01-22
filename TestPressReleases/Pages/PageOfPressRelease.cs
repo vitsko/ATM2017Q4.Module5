@@ -10,16 +10,16 @@
     {
         private static readonly BaseElement ContactList = new BaseElement(By.XPath("//div[contains(@class,'panel-contact')]//h4"));
 
-        [FindsBy(How = How.ClassName, Using = "press-release-page-title")]
-        private IWebElement titleOfPressReleaseOnPage;
-
-        [FindsBy(How = How.ClassName, Using = "pressrelise-article-date")]
-        private IWebElement dateOfPressReleaseOnPage;
-
         internal PageOfPressRelease() : base(PageOfPressRelease.ContactList.Locator, "Page of Press-Release")
         {
             PageFactory.InitElements(WebDriver.GetDriver(), this);
         }
+
+        [FindsBy(How = How.ClassName, Using = "press-release-page-title")]
+        private IWebElement TitleOfPressReleaseOnPage { get; set; }
+
+        [FindsBy(How = How.ClassName, Using = "pressrelise-article-date")]
+        private IWebElement DateOfPressReleaseOnPage { get; set; }
 
         internal static List<string> GetTitlesOfPressRelease(List<IWebElement> elementsWithLink)
         {
@@ -30,7 +30,7 @@
                 var windowsHandels = new List<string>();
                 var tab = WebDriver.OpenLinkInNewTab(link, out windowsHandels);
                 var pageOfPressRelease = new PageOfPressRelease();
-                titlesOfPressReleasesOnPage.AddRange(pageOfPressRelease.TitleOfPressReleaseOnPage());
+                titlesOfPressReleasesOnPage.AddRange(pageOfPressRelease.GetTitleOfPressReleaseOnPage());
 
                 tab.Close();
 
@@ -46,12 +46,12 @@
             return titlesOfPressReleasesOnPage;
         }
 
-        private string[] TitleOfPressReleaseOnPage()
+        private string[] GetTitleOfPressReleaseOnPage()
         {
             return new string[]
             {
-                this.dateOfPressReleaseOnPage.Text,
-                this.titleOfPressReleaseOnPage.Text
+                this.DateOfPressReleaseOnPage.Text,
+                this.TitleOfPressReleaseOnPage.Text
             };
         }
     }

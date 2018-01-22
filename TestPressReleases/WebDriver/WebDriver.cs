@@ -26,10 +26,9 @@
                 {
                     if (Config.IsSeleniumGrid)
                     {
-                        var capability = DesiredCapabilities.Chrome();
-                        capability.SetCapability(CapabilityType.BrowserName, "chrome");
-                        capability.SetCapability(CapabilityType.Platform, new Platform(PlatformType.Windows));
-                        WebDriver.driver = new RemoteWebDriver(new Uri(Config.URLToHubOfSeleniumGrid), capability);
+                        ChromeOptions options = new ChromeOptions();
+                        options.PlatformName = PlatformType.Windows.ToString();
+                        WebDriver.driver = new RemoteWebDriver(new Uri(Config.URLToHubOfSeleniumGrid), options.ToCapabilities());
                     }
                     else
                     {

@@ -23,20 +23,8 @@
         private static readonly BaseElement TitleOfPressReleases = new BaseElement(By.XPath("//div[@class='panel-heading']//span"));
         private static readonly BaseElement Announcement = new BaseElement(By.XPath("//div[@class='tableOverflow']"));
 
-        [FindsBy(How = How.XPath, Using = "//button[contains(@class, 'load-more-button')]")]
-        private IWebElement loadMore;
-
-        [FindsBy(How = How.XPath, Using = "//div[@role='tablist']")]
-        private IWebElement tableOfPressReleases;
-
-        [FindsBy(How = How.XPath, Using = "//a[contains(@class,'icon-s-chevron-link')]")]
-        private IWebElement linkToPageOfPressRelease;
-
         private string calendarFromId = "calendar-from";
         private string calendarToId = "calendar-to";
-
-        [FindsBy(How = How.XPath, Using = "//button[contains(@class,'filter-btn')]")]
-        private IWebElement filterButtonApply;
 
         private string patternDate;
 
@@ -80,10 +68,22 @@
             }
         }
 
+        [FindsBy(How = How.XPath, Using = "//button[contains(@class,'filter-btn')]")]
+        private IWebElement FilterButtonApply { get; set; }
+
+        [FindsBy(How = How.XPath, Using = "//button[contains(@class, 'load-more-button')]")]
+        private IWebElement LoadMore { get; set; }
+
+        [FindsBy(How = How.XPath, Using = "//div[@role='tablist']")]
+        private IWebElement TableOfPressReleases { get; set; }
+
+        [FindsBy(How = How.XPath, Using = "//a[contains(@class,'icon-s-chevron-link')]")]
+        private IWebElement LinkToPageOfPressRelease { get; set; }
+
         internal int CountOfPressReleases()
         {
             WebDriver.WaitForIsVisible(By.XPath("//div[@role='tablist']"));
-            return this.tableOfPressReleases.FindElements(By.XPath("//div[@role='tablist']")).Count;
+            return this.TableOfPressReleases.FindElements(By.XPath("//div[@role='tablist']")).Count;
         }
 
         internal PageOfPressReleases ClickLoadMore()
@@ -91,28 +91,28 @@
             for (int i = 0; i <= Config.CountOfClickMoreLoad - 1; i++)
             {
                 WebDriver.WaitForIsVisible(By.XPath("//button[contains(@class, 'load-more-button')]"));
-                this.loadMore.Click();
+                this.LoadMore.Click();
             }
 
             return this;
         }
 
-        internal List<string> WatchTitlesOfPressReleases()
+        internal Dictionary<int, string[]> GetIdAndTitleOfPressReleases()
         {
-            var titles = PageOfPressReleases.TitleOfPressReleases.GetValueBySpecialFuncSelector(iwebElement => iwebElement.Text);
+            var titlesOfPressReleases = PageOfPressReleases.TitleOfPressReleases.GetValueBySpecialFuncSelector(iwebElement => iwebElement.Text);
+            Helper.PostHandlingForDateOfPressReleases(titlesOfPressReleases, false);
 
-            Helper.PostHandlingForDateOfPressReleases(titles, false);
-            Helper.JoinStringsInListByPair(titles);
+            var listOfIdForPressReleases = this.GetListOfIdForPressReleases();
 
-            return titles;
+            return this.GetTitlesOfPressReleasesWithId(titlesOfPressReleases, listOfIdForPressReleases);
         }
 
-        internal Dictionary<string, long> GetSizeOfElementForPressReleases(string xpath, string attribute)
+        internal Dictionary<int, long> GetSizeOfElementForPressReleases(string xpath, string attribute)
         {
-            var titles = this.WatchTitlesOfPressReleases();
+            var titles = this.GetIdAndTitleOfPressReleases();
             var pressReleasesTab = WebDriver.GetDriver().FindElements(By.XPath("//div[@role='tablist']")).ToList();
 
-            Dictionary<string, long> titleOfPressReleaseAndSizeOfElement = new Dictionary<string, long>();
+            var idOfPressReleaseAndSizeOfElement = new Dictionary<int, long>();
 
             for (int i = 0; i < pressReleasesTab.Count; i++)
             {
@@ -123,23 +123,22 @@
                     var url = elementsWithUrl.First().GetAttribute(attribute);
                     var contentLength = Helper.GetContentLengthByLink(url);
 
-                    titleOfPressReleaseAndSizeOfElement.Add(titles.ElementAt(i), contentLength);
+                    idOfPressReleaseAndSizeOfElement.Add(titles.ElementAt(i).Key, contentLength);
                 }
             }
 
-            return titleOfPressReleaseAndSizeOfElement;
+            return idOfPressReleaseAndSizeOfElement;
         }
 
-        internal Dictionary<string, string> GetAnnouncementsOfPressReleases()
+        internal Dictionary<int, string> GetAnnouncementsOfPressReleases()
         {
-            var titles = this.WatchTitlesOfPressReleases();
+            var titles = this.GetIdAndTitleOfPressReleases();
             var announcements = PageOfPressReleases.Announcement.GetValueBySpecialFuncSelector(iwebElement => iwebElement.Text);
-
-            Dictionary<string, string> titlesAndAnnouncements = new Dictionary<string, string>();
+            var titlesAndAnnouncements = new Dictionary<int, string>();
 
             for (int i = 0; i < titles.Count; i++)
             {
-                titlesAndAnnouncements.Add(titles.ElementAt(i), announcements.ElementAt(i));
+                titlesAndAnnouncements.Add(titles.ElementAt(i).Key, announcements.ElementAt(i));
             }
 
             return titlesAndAnnouncements;
@@ -147,30 +146,29 @@
 
         internal List<IWebElement> GetElementsOfLinkToPageOfPressRelease()
         {
-            return this.linkToPageOfPressRelease.FindElements(By.XPath("//a[contains(@class,'icon-s-chevron-link')]")).ToList();
+            return this.LinkToPageOfPressRelease.FindElements(By.XPath("//a[contains(@class,'icon-s-chevron-link')]")).ToList();
         }
 
-        internal Dictionary<string, DateTime> FilterByDate()
+        internal Dictionary<int, DateTime> FilterPressReleasesByDate()
         {
             WebDriver.SetValueByScript("Id", this.calendarFromId, this.DateFrom.ToString(this.PatternDate));
             WebDriver.SetValueByScript("Id", this.calendarToId, this.DateTo.ToString(this.PatternDate));
 
             // Sometimes test failed because of button isn't clickable.
             WebDriver.GetDriver().ExecuteScript("scroll(250, 0)");
-            this.filterButtonApply.Click();
+            this.FilterButtonApply.Click();
 
             // Need handling of case when search found 0 items. There aren't press-releases.
             // For this to wait loading of page and to count found items.
             WebDriver.WaitForIsVisible(By.XPath("//div[contains(@class,'text-right')]"));
-
-            var titleAndDatime = new Dictionary<string, DateTime>();
+            var idAndDateTimeOfPressRelease = new Dictionary<int, DateTime>();
 
             if (PageOfPressReleases.TitleOfPressReleases.FindElements(PageOfPressReleases.TitleOfPressReleases.Locator).Count != 0)
             {
                 // Wait loading of DOM with new elements.
                 PageOfPressReleases.TitleOfPressReleases.IsVisible();
 
-                var textOfTitle = this.WatchTitlesOfPressReleases();
+                var textOfTitle = this.GetIdAndTitleOfPressReleases();
 
                 var titlesAndDatePressReleasesOnList = PageOfPressReleases.TitleOfPressReleases.GetValueBySpecialFuncSelector(iwebElement => iwebElement.Text);
                 Helper.PostHandlingForDateOfPressReleases(titlesAndDatePressReleasesOnList, false);
@@ -179,11 +177,38 @@
 
                 for (int i = 0; i < textOfTitle.Count; i++)
                 {
-                    titleAndDatime.Add(textOfTitle.ElementAt(i), DateTime.Parse(onlyDate.ElementAt(i)));
+                    idAndDateTimeOfPressRelease.Add(textOfTitle.ElementAt(i).Key, DateTime.Parse(onlyDate.ElementAt(i)));
                 }
             }
 
-            return titleAndDatime;
+            return idAndDateTimeOfPressRelease;
+        }
+
+        private List<int> GetListOfIdForPressReleases()
+        {
+            var elementsWithLink = this.GetElementsOfLinkToPageOfPressRelease();
+            var listOfIdForPressReleases = new List<int>();
+
+            foreach (var element in elementsWithLink)
+            {
+                listOfIdForPressReleases.Add(int.Parse(element.GetAttribute(PageOfPressReleases.AttributeHref).Replace(Config.PatternToUrlOnPageOfPressRelease, string.Empty)));
+            }
+
+            return listOfIdForPressReleases;
+        }
+
+        private Dictionary<int, string[]> GetTitlesOfPressReleasesWithId(List<string> titlesOfPressReleases, List<int> listOfIdForPressReleases)
+        {
+            var titlesAndIdOfPressReleases = new Dictionary<int, string[]>();
+
+            for (int i = 0; i < titlesOfPressReleases.Count; i++)
+            {
+                titlesAndIdOfPressReleases.Add(listOfIdForPressReleases.ElementAt(i), new string[] { titlesOfPressReleases.ElementAt(0), titlesOfPressReleases.ElementAt(1) });
+                titlesOfPressReleases.RemoveRange(0, 2);
+                titlesOfPressReleases.Add(string.Empty);
+            }
+
+            return titlesAndIdOfPressReleases;
         }
     }
 }

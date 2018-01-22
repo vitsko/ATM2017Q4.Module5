@@ -25,7 +25,8 @@
             for (int i = 0; i < titlesOfPressReleases.Count; i += 2)
             {
                 DateTime.TryParse(titlesOfPressReleases[i], Config.Culture, DateTimeStyles.AllowWhiteSpaces, out parse);
-                titlesOfPressReleases[i] = parse.ToShortDateString();
+
+                titlesOfPressReleases[i] = parse.Equals(DateTime.MinValue) ? string.Empty : parse.ToShortDateString();
             }
         }
 
