@@ -9,6 +9,7 @@
     internal class TestContentBlockOfPressReleases : BaseTest
     {
         private static PageOfPressReleases page;
+        private static string message;
 
         private static PageOfPressReleases ListOfPressReleases
         {
@@ -60,13 +61,16 @@
 
             foreach (var title in idAndTitleOfPressReleases)
             {
-                Assert.That(
-                            title.Value.All(
-                                            data => !string.IsNullOrWhiteSpace(data)),
-                                           Resource.TitleOfPressReleaseIsNotNull,
-                                            title.Key,
-                                            title.Value.ElementAt(0),
-                                            title.Value.ElementAt(1));
+                TestContentBlockOfPressReleases.message = string.Format(
+                                                                        Resource.TitleOfPressReleaseIsNotNull,
+                                                                        title.Key,
+                                                                        title.Value.ElementAt(0),
+                                                                        title.Value.ElementAt(1));
+
+                SoftAssert.That(
+                                 title.Value.All(
+                                                 data => !string.IsNullOrWhiteSpace(data)),
+                                                 TestContentBlockOfPressReleases.message);
             }
         }
 
@@ -77,10 +81,11 @@
 
             foreach (var item in idAndSizeOfImageForPressRelease)
             {
-                Assert.That(
-                            item.Value != 0,
-                            Resource.CorrectLinkToImageOfPressReleases,
-                            item.Key);
+                TestContentBlockOfPressReleases.message = string.Format(
+                                                                        Resource.CorrectLinkToImageOfPressReleases,
+                                                                        item.Key);
+
+                SoftAssert.That(item.Value != 0, TestContentBlockOfPressReleases.message);
             }
         }
 
@@ -91,10 +96,13 @@
 
             foreach (var item in idAndAnnouncements)
             {
-                Assert.That(
-                            !string.IsNullOrEmpty(item.Value),
-                            Resource.AnnouncementOfPressReleaseIsNotNull,
-                            item.Key);
+                TestContentBlockOfPressReleases.message = string.Format(
+                                                                        Resource.AnnouncementOfPressReleaseIsNotNull,
+                                                                        item.Key);
+
+                SoftAssert.That(
+                                !string.IsNullOrEmpty(item.Value),
+                                TestContentBlockOfPressReleases.message);
             }
         }
 
@@ -105,10 +113,11 @@
 
             foreach (var item in idAndSizeOfPDFForPressRelease)
             {
-                Assert.That(
-                            item.Value != 0,
-                            Resource.CorrectLinkToWatchPDFOfPressReleases,
-                            item.Key);
+                TestContentBlockOfPressReleases.message = string.Format(
+                                                                        Resource.CorrectLinkToWatchPDFOfPressReleases,
+                                                                        item.Key);
+
+                SoftAssert.That(item.Value != 0, TestContentBlockOfPressReleases.message);
             }
         }
 
@@ -119,10 +128,11 @@
 
             foreach (var item in idAndSizeOfPDFForPressRelease)
             {
-                Assert.That(
-                            item.Value != 0,
-                            Resource.CorrectLinkToDownloadPDFOfPressReleases,
-                            item.Key);
+                TestContentBlockOfPressReleases.message = string.Format(
+                                                                        Resource.CorrectLinkToDownloadPDFOfPressReleases,
+                                                                        item.Key);
+
+                SoftAssert.That(item.Value != 0, TestContentBlockOfPressReleases.message);
             }
         }
 
@@ -139,11 +149,13 @@
                 Helper.JoinStringsInListByPair(titlesOfPressReleasesFromList);
                 var pressReleaseOnPage = titlesOfPressReleasesOnPage.ElementAt(i);
 
-                StringAssert.AreEqualIgnoringCase(
-                                                  titlesOfPressReleasesFromList.ElementAt(0),
-                                                  pressReleaseOnPage,
-                                                  Resource.MatchTitleOfPressReleasesOnListAndPage,
-                                                  idAndTitlesOfPressReleasesFromList.ElementAt(i).Key);
+                TestContentBlockOfPressReleases.message = string.Format(
+                                                                        Resource.MatchTitleOfPressReleasesOnListAndPage,
+                                                                        idAndTitlesOfPressReleasesFromList.ElementAt(i).Key);
+
+                SoftAssert.That(
+                                titlesOfPressReleasesFromList.ElementAt(0).Equals(pressReleaseOnPage, System.StringComparison.InvariantCultureIgnoreCase),
+                                TestContentBlockOfPressReleases.message);
             }
         }
 
@@ -154,13 +166,16 @@
 
             foreach (var item in afterFiltering)
             {
-                Assert.That(
+                TestContentBlockOfPressReleases.message = string.Format(
+                                                                        Resource.CorrectFilteringByDateOfPressReleases,
+                                                                        item.Key,
+                                                                        item.Value,
+                                                                        ListOfPressReleases.DateFrom.ToString(ListOfPressReleases.PatternDate),
+                                                                        ListOfPressReleases.DateTo.ToString(ListOfPressReleases.PatternDate));
+
+                SoftAssert.That(
                             item.Value >= ListOfPressReleases.DateFrom && item.Value <= ListOfPressReleases.DateTo,
-                            Resource.CorrectFilteringByDateOfPressReleases,
-                            item.Key,
-                            item.Value,
-                            ListOfPressReleases.DateFrom.ToString(ListOfPressReleases.PatternDate),
-                            ListOfPressReleases.DateTo.ToString(ListOfPressReleases.PatternDate));
+                            TestContentBlockOfPressReleases.message);
             }
         }
     }
