@@ -77,12 +77,13 @@
   <ItemGroup>
     <Compile Include="Assert\SingleAssert.cs" />
     <Compile Include="Assert\SoftAssertions.cs" />
+    <Compile Include="Entities\PressRelease.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="Pages\BasePage.cs" />
     <Compile Include="Pages\PageOfPressReleases.cs" />
     <Compile Include="Pages\PageOfPressRelease.cs" />
     <Compile Include="Pages\MainPage.cs" />
-    <Compile Include="Pages\SitePages.cs" />        
+    <Compile Include="Pages\SitePages.cs" />
     <Compile Include="Resource.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -99,7 +100,7 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="packages.config" />  
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resource.resx">
@@ -107,6 +108,7 @@
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

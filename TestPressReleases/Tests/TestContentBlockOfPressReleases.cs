@@ -4,6 +4,7 @@
     using NUnit.Framework;
     using Pages;
     using WebDriver;
+    using static Entities.PressRelease;
 
     [TestFixture]
     internal class TestContentBlockOfPressReleases : BaseTest
@@ -30,13 +31,12 @@
         [Test, Category("CountElements")]
         public void DefaultCountOfPressReleases()
         {
-            var defaultCount = ListOfPressReleases.CountOfPressReleases();
+            var pressReleases = ListOfPressReleases.PressReleasesToCount();
 
-            Assert.AreEqual(
-                            defaultCount,
-                            Config.DefaultCountOfPressReleases,
+            Assert.IsTrue(
+                            pressReleases.Count == Config.DefaultCountOfPressReleases,
                             Resource.DefaultCountOfPressReleases,
-                            defaultCount,
+                            pressReleases,
                             Config.DefaultCountOfPressReleases);
         }
 
@@ -45,31 +45,31 @@
         {
             var page = ListOfPressReleases.ClickLoadMore();
 
-            var count = page.CountOfPressReleases();
+            var pressReleases = page.PressReleasesToCount();
 
             Assert.IsTrue(
-                          count <= Config.MaxCountOfPressReleasesOnPage,
+                          pressReleases.Count <= Config.MaxCountOfPressReleasesOnPage,
                           Resource.CountOfPressReleasesAfterClickMore,
-                          count,
+                          pressReleases.Count,
                           Config.MaxCountOfPressReleasesOnPage);
         }
 
         [Test, Category("ObligatoryData")]
         public void TitleOfPressReleaseIsNotNull()
         {
-            var idAndTitleOfPressReleases = ListOfPressReleases.GetIdAndTitleOfPressReleases();
+            var pressReleases = ListOfPressReleases.PressReleasesWithTitle();
 
-            foreach (var title in idAndTitleOfPressReleases)
+            foreach (var pressRelease in pressReleases)
             {
                 TestContentBlockOfPressReleases.message = string.Format(
                                                                         Resource.TitleOfPressReleaseIsNotNull,
-                                                                        title.Key,
-                                                                        title.Value.ElementAt(0),
-                                                                        title.Value.ElementAt(1));
+                                                                        pressRelease.Id,
+                                                                        pressRelease.Title.ElementAt(0),
+                                                                        pressRelease.Title.ElementAt(1));
 
                 SoftAssert.That(
-                                 title.Value.All(
-                                                 data => !string.IsNullOrWhiteSpace(data)),
+                                 pressRelease.Title.All(
+                                                 title => !string.IsNullOrWhiteSpace(title)),
                                                  TestContentBlockOfPressReleases.message);
             }
         }
@@ -77,31 +77,31 @@
         [Test, Category("CorrectLinks")]
         public void CorrectLinkToImageOfPressReleases()
         {
-            var idAndSizeOfImageForPressRelease = ListOfPressReleases.GetSizeOfElementForPressReleases(PageOfPressReleases.XpathToImageOfAnnouncement, PageOfPressReleases.AttributeSrc);
+            var pressReleases = ListOfPressReleases.PressReleasesWithSizeOfElement(PageOfPressReleases.XpathToImageOfAnnouncement, PageOfPressReleases.AttributeSrc, SizeOfFile.Image);
 
-            foreach (var item in idAndSizeOfImageForPressRelease)
+            foreach (var pressRelease in pressReleases)
             {
                 TestContentBlockOfPressReleases.message = string.Format(
                                                                         Resource.CorrectLinkToImageOfPressReleases,
-                                                                        item.Key);
+                                                                        pressRelease.Id);
 
-                SoftAssert.That(item.Value != 0, TestContentBlockOfPressReleases.message);
+                SoftAssert.That(pressRelease.SizeOfImageByAnnouncement != 0, TestContentBlockOfPressReleases.message);
             }
         }
 
         [Test, Category("ObligatoryData")]
         public void AnnouncementOfPressReleaseIsNotNull()
         {
-            var idAndAnnouncements = ListOfPressReleases.GetAnnouncementsOfPressReleases();
+            var pressReleases = ListOfPressReleases.PressReleasesWithAnnouncements();
 
-            foreach (var item in idAndAnnouncements)
+            foreach (var pressRelease in pressReleases)
             {
                 TestContentBlockOfPressReleases.message = string.Format(
                                                                         Resource.AnnouncementOfPressReleaseIsNotNull,
-                                                                        item.Key);
+                                                                        pressRelease.Id);
 
                 SoftAssert.That(
-                                !string.IsNullOrEmpty(item.Value),
+                                !string.IsNullOrEmpty(pressRelease.Announcement),
                                 TestContentBlockOfPressReleases.message);
             }
         }
@@ -109,49 +109,49 @@
         [Test, Category("CorrectLinks")]
         public void CorrectLinkToWatchPDFOfPressReleases()
         {
-            var idAndSizeOfPDFForPressRelease = ListOfPressReleases.GetSizeOfElementForPressReleases(PageOfPressReleases.XpathToLinkToWatchPDF, PageOfPressReleases.AttributeHref);
+            var pressReleases = ListOfPressReleases.PressReleasesWithSizeOfElement(PageOfPressReleases.XpathToLinkToWatchPDF, PageOfPressReleases.AttributeHref, SizeOfFile.WatchPDF);
 
-            foreach (var item in idAndSizeOfPDFForPressRelease)
+            foreach (var pressRelease in pressReleases)
             {
                 TestContentBlockOfPressReleases.message = string.Format(
                                                                         Resource.CorrectLinkToWatchPDFOfPressReleases,
-                                                                        item.Key);
+                                                                        pressRelease.Id);
 
-                SoftAssert.That(item.Value != 0, TestContentBlockOfPressReleases.message);
+                SoftAssert.That(pressRelease.SizeOfFileToWatchPDF != 0, TestContentBlockOfPressReleases.message);
             }
         }
 
         [Test, Category("CorrectLinks")]
         public void CorrectLinkToDownloadPDFOfPressReleases()
         {
-            var idAndSizeOfPDFForPressRelease = ListOfPressReleases.GetSizeOfElementForPressReleases(PageOfPressReleases.XpathLinkToDownloadPDF, PageOfPressReleases.AttributeHref);
+            var pressReleases = ListOfPressReleases.PressReleasesWithSizeOfElement(PageOfPressReleases.XpathLinkToDownloadPDF, PageOfPressReleases.AttributeHref, SizeOfFile.DownloadPDF);
 
-            foreach (var item in idAndSizeOfPDFForPressRelease)
+            foreach (var pressRelease in pressReleases)
             {
                 TestContentBlockOfPressReleases.message = string.Format(
                                                                         Resource.CorrectLinkToDownloadPDFOfPressReleases,
-                                                                        item.Key);
+                                                                        pressRelease.Id);
 
-                SoftAssert.That(item.Value != 0, TestContentBlockOfPressReleases.message);
+                SoftAssert.That(pressRelease.SizeOfFileToDownloadPDF != 0, TestContentBlockOfPressReleases.message);
             }
         }
 
         [Test, Category("ObligatoryData")]
         public void MatchTitleOfPressReleasesOnListAndPage()
         {
-            var idAndTitlesOfPressReleasesFromList = ListOfPressReleases.GetIdAndTitleOfPressReleases();
+            var pressReleases = ListOfPressReleases.PressReleasesWithTitle();
             var elementsWithLink = ListOfPressReleases.GetElementsOfLinkToPageOfPressRelease();
             var titlesOfPressReleasesOnPage = PageOfPressRelease.GetTitlesOfPressRelease(elementsWithLink);
 
-            for (int i = 0; i < idAndTitlesOfPressReleasesFromList.Count; i++)
+            for (int i = 0; i < pressReleases.Count; i++)
             {
-                var titlesOfPressReleasesFromList = idAndTitlesOfPressReleasesFromList.ElementAt(i).Value.ToList();
+                var titlesOfPressReleasesFromList = pressReleases.ElementAt(i).Title.ToList();
                 Helper.JoinStringsInListByPair(titlesOfPressReleasesFromList);
                 var pressReleaseOnPage = titlesOfPressReleasesOnPage.ElementAt(i);
 
                 TestContentBlockOfPressReleases.message = string.Format(
                                                                         Resource.MatchTitleOfPressReleasesOnListAndPage,
-                                                                        idAndTitlesOfPressReleasesFromList.ElementAt(i).Key);
+                                                                        pressReleases.ElementAt(i).Id);
 
                 SoftAssert.That(
                                 titlesOfPressReleasesFromList.ElementAt(0).Equals(pressReleaseOnPage, System.StringComparison.InvariantCultureIgnoreCase),
@@ -162,19 +162,19 @@
         [Test, Category("CountElements")]
         public void CorrectFilteringByDateOfPressReleases()
         {
-            var afterFiltering = ListOfPressReleases.FilterPressReleasesByDate();
+            var pressReleases = ListOfPressReleases.FilterPressReleasesByDate();
 
-            foreach (var item in afterFiltering)
+            foreach (var pressRelease in pressReleases)
             {
                 TestContentBlockOfPressReleases.message = string.Format(
                                                                         Resource.CorrectFilteringByDateOfPressReleases,
-                                                                        item.Key,
-                                                                        item.Value,
+                                                                        pressRelease.Id,
+                                                                        pressRelease.Date,
                                                                         ListOfPressReleases.DateFrom.ToString(ListOfPressReleases.PatternDate),
                                                                         ListOfPressReleases.DateTo.ToString(ListOfPressReleases.PatternDate));
 
                 SoftAssert.That(
-                            item.Value >= ListOfPressReleases.DateFrom && item.Value <= ListOfPressReleases.DateTo,
+                            pressRelease.Date >= ListOfPressReleases.DateFrom && pressRelease.Date <= ListOfPressReleases.DateTo,
                             TestContentBlockOfPressReleases.message);
             }
         }
