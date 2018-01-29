@@ -9,5 +9,5 @@ v_ReSharper.*/
 */packages/
 */*.log
 */TestResults/
-*/*.TMP
-*/*.jar
+*.TMP
+*.jar
