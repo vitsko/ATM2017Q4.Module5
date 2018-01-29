@@ -1,4 +1,4 @@
-﻿namespace TestPressReleases.Pages
+﻿namespace Pages
 {
     using System;
     using System.Collections.Generic;
@@ -7,19 +7,20 @@
     using Entities;
     using OpenQA.Selenium;
     using OpenQA.Selenium.Support.PageObjects;
-    using WebDriver;
+    using Utility;
+    using WDriver;
     using static Entities.PressRelease;
 
-    internal class PageOfPressReleases : BasePage
+    public class PageOfPressReleases : BasePage
     {
-        internal static readonly string XpathToImageOfAnnouncement = "(//div[@class='panel-body'])[{0}]//div[@class='image']//img";
-        internal static readonly string AttributeSrc = "src";
-        internal static readonly string XpathToLinkToWatchPDF = "(//a[contains(@class,'icon-s-flipbook-pdf_round')])[{0}]";
-        internal static readonly string XpathLinkToDownloadPDF = "(//a[contains(@class,'icon-s-download_round')])[{0}]";
-        internal static readonly string AttributeHref = "href";
+        public static readonly string XpathToImageOfAnnouncement = "(//div[@class='panel-body'])[{0}]//div[@class='image']//img";
+        public static readonly string AttributeSrc = "src";
+        public static readonly string XpathToLinkToWatchPDF = "(//a[contains(@class,'icon-s-flipbook-pdf_round')])[{0}]";
+        public static readonly string XpathLinkToDownloadPDF = "(//a[contains(@class,'icon-s-download_round')])[{0}]";
+        public static readonly string AttributeHref = "href";
 
-        internal static readonly BaseElement MenuPressCenter = new BaseElement(By.XPath("//li[@id='435aa1d6-2ddd-43b5-9564-3a986dd3d526']"));
-        internal static readonly BaseElement MenuPressReleases = new BaseElement(By.XPath(string.Format("//a[text()='{0}']", Config.MenuPressReleases)));
+        public static readonly BaseElement MenuPressCenter = new BaseElement(By.XPath("//li[@id='435aa1d6-2ddd-43b5-9564-3a986dd3d526']"));
+        public static readonly BaseElement MenuPressReleases = new BaseElement(By.XPath(string.Format("//a[text()='{0}']", Config.MenuPressReleases)));
 
         private static readonly BaseElement PressReleases = new BaseElement(By.ClassName("pressrelease-list-widget"));
         private static readonly BaseElement TitleOfPressReleases = new BaseElement(By.XPath("//div[@class='panel-heading']//span"));
@@ -30,12 +31,12 @@
 
         private string patternDate;
 
-        internal PageOfPressReleases() : base(PressReleases.Locator, "Press Releases")
+        public PageOfPressReleases() : base(PressReleases.Locator, "Press Releases")
         {
-            PageFactory.InitElements(WebDriver.GetDriver(), this);
+            PageFactory.InitElements(WDriver.GetDriver(), this);
         }
 
-        internal DateTime DateFrom
+        public DateTime DateFrom
         {
             get
             {
@@ -46,7 +47,7 @@
             }
         }
 
-        internal DateTime DateTo
+        public DateTime DateTo
         {
             get
             {
@@ -57,7 +58,7 @@
             }
         }
 
-        internal string PatternDate
+        public string PatternDate
         {
             get
             {
@@ -82,26 +83,26 @@
         [FindsBy(How = How.XPath, Using = "//a[contains(@class,'icon-s-chevron-link')]")]
         private IWebElement LinkToPageOfPressRelease { get; set; }
 
-        internal List<IWebElement> PressReleasesToCount()
+        public List<IWebElement> PressReleasesToCount()
         {
-            WebDriver.WaitForIsVisible(By.XPath("//div[@role='tablist']"));
+            WDriver.WaitForIsVisible(By.XPath("//div[@role='tablist']"));
 
             var pressReleases = new List<IWebElement>(this.TableOfPressReleases.FindElements(By.XPath("//div[@role='tablist']")).ToList());
             return pressReleases;
         }
 
-        internal PageOfPressReleases ClickLoadMore()
+        public PageOfPressReleases ClickLoadMore()
         {
             for (int i = 0; i <= Config.CountOfClickMoreLoad - 1; i++)
             {
-                WebDriver.WaitForIsVisible(By.XPath("//button[contains(@class, 'load-more-button')]"));
+                WDriver.WaitForIsVisible(By.XPath("//button[contains(@class, 'load-more-button')]"));
                 this.LoadMore.Click();
             }
 
             return this;
         }
 
-        internal List<PressRelease> PressReleasesWithTitle()
+        public List<PressRelease> PressReleasesWithTitle()
         {
             var titlesOfPressReleases = PageOfPressReleases.TitleOfPressReleases.GetValueBySpecialFuncSelector(iwebElement => iwebElement.Text);
             Helper.PostHandlingForDateOfPressReleases(titlesOfPressReleases, false);
@@ -123,11 +124,11 @@
             return pressReleases;
         }
 
-        internal List<PressRelease> PressReleasesWithSizeOfElement(string xpath, string attribute, SizeOfFile fileType)
+        public List<PressRelease> PressReleasesWithSizeOfElement(string xpath, string attribute, SizeOfFile fileType)
         {
             var pressRelease = this.PressReleasesWithId();
 
-            var pressReleasesTab = WebDriver.GetDriver().FindElements(By.XPath("//div[@role='tablist']")).ToList();
+            var pressReleasesTab = WDriver.GetDriver().FindElements(By.XPath("//div[@role='tablist']")).ToList();
 
             for (int i = 0; i < pressReleasesTab.Count; i++)
             {
@@ -157,7 +158,7 @@
             return pressRelease;
         }
 
-        internal List<PressRelease> PressReleasesWithAnnouncements()
+        public List<PressRelease> PressReleasesWithAnnouncements()
         {
             var pressRelease = this.PressReleasesWithId();
             var announcements = PageOfPressReleases.Announcement.GetValueBySpecialFuncSelector(iwebElement => iwebElement.Text);
@@ -170,25 +171,25 @@
             return pressRelease;
         }
 
-        internal List<IWebElement> GetElementsOfLinkToPageOfPressRelease()
+        public List<IWebElement> GetElementsOfLinkToPageOfPressRelease()
         {
             return this.LinkToPageOfPressRelease.FindElements(By.XPath("//a[contains(@class,'icon-s-chevron-link')]")).ToList();
         }
 
-        internal List<PressRelease> FilterPressReleasesByDate()
+        public List<PressRelease> FilterPressReleasesByDate()
         {
             var pressReleases = new List<PressRelease>();
 
-            WebDriver.SetValueByScript("Id", this.calendarFromId, this.DateFrom.ToString(this.PatternDate));
-            WebDriver.SetValueByScript("Id", this.calendarToId, this.DateTo.ToString(this.PatternDate));
+            WDriver.SetValueByScript("Id", this.calendarFromId, this.DateFrom.ToString(this.PatternDate));
+            WDriver.SetValueByScript("Id", this.calendarToId, this.DateTo.ToString(this.PatternDate));
 
             // Sometimes test failed because of button isn't clickable.
-            WebDriver.GetDriver().ExecuteScript("scroll(250, 0)");
+            WDriver.GetDriver().ExecuteScript("scroll(250, 0)");
             this.FilterButtonApply.Click();
 
             // Need handling of case when search found 0 items. There aren't press-releases.
             // For this to wait loading of page and to count found items.
-            WebDriver.WaitForIsVisible(By.XPath("//div[contains(@class,'text-right')]"));
+            WDriver.WaitForIsVisible(By.XPath("//div[contains(@class,'text-right')]"));
 
             if (PageOfPressReleases.TitleOfPressReleases.FindElements(PageOfPressReleases.TitleOfPressReleases.Locator).Count != 0)
             {

@@ -1,9 +1,10 @@
-﻿namespace TestPressReleases.Tests
+﻿namespace Tests
 {
     using System.Linq;
     using NUnit.Framework;
     using Pages;
-    using WebDriver;
+    using Utility;
+    using WDriver;
     using static Entities.PressRelease;
 
     [TestFixture]

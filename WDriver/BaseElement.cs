@@ -1,4 +1,4 @@
-﻿namespace TestPressReleases.WebDriver
+﻿namespace WDriver
 {
     using System;
     using System.Collections.Generic;
@@ -7,7 +7,7 @@
     using System.Linq;
     using OpenQA.Selenium;
 
-    internal class BaseElement : IWebElement
+    public class BaseElement : IWebElement
     {
         public BaseElement(By locator, string name)
         {
@@ -34,7 +34,7 @@
 
         public bool Displayed { get; }
 
-        internal By Locator { get; private set; }
+        public By Locator { get; private set; }
 
         protected string Name { get; set; }
 
@@ -42,7 +42,7 @@
 
         public string GetText()
         {
-           WebDriver.WaitForIsVisible(this.Locator);
+            WDriver.WaitForIsVisible(this.Locator);
             return this.Element.Text;
         }
 
@@ -50,7 +50,7 @@
         {
             try
             {
-                this.Element = WebDriver.GetDriver().FindElement(this.Locator);
+                this.Element = WDriver.GetDriver().FindElement(this.Locator);
             }
             catch (Exception)
             {
@@ -67,7 +67,7 @@
 
         public void SendKeys(string text)
         {
-            WebDriver.GetDriver().FindElement(this.Locator).SendKeys(text);
+            WDriver.GetDriver().FindElement(this.Locator).SendKeys(text);
         }
 
         public void Submit()
@@ -77,13 +77,13 @@
 
         public void Click()
         {
-           WebDriver.WaitForIsVisible(this.Locator);
-            WebDriver.GetDriver().FindElement(this.Locator).Click();
+            WDriver.WaitForIsVisible(this.Locator);
+            WDriver.GetDriver().FindElement(this.Locator).Click();
         }
 
         public string GetAttribute(string attributeName)
         {
-            return WebDriver.GetDriver()
+            return WDriver.GetDriver()
                             .FindElement(this.Locator)
                             .GetAttribute(attributeName);
         }
@@ -100,23 +100,23 @@
 
         public IWebElement FindElement(By by)
         {
-            return WebDriver.GetDriver().FindElement(by);
+            return WDriver.GetDriver().FindElement(by);
         }
 
         public ReadOnlyCollection<IWebElement> FindElements(By by)
         {
-            return WebDriver.GetDriver().FindElements(by);
+            return WDriver.GetDriver().FindElements(by);
         }
 
         public bool IsVisible()
         {
-           WebDriver.WaitForIsVisible(this.Locator);
+            WDriver.WaitForIsVisible(this.Locator);
             return this.FindElement(this.Locator).Displayed;
         }
 
-        internal List<string> GetValueBySpecialFuncSelector(Func<IWebElement, string> selector)
+        public List<string> GetValueBySpecialFuncSelector(Func<IWebElement, string> selector)
         {
-           WebDriver.WaitForIsVisible(this.Locator);
+            WDriver.WaitForIsVisible(this.Locator);
 
             return this.FindElements(this.Locator)
                        .ToList()

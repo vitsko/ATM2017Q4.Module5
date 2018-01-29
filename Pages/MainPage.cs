@@ -1,9 +1,9 @@
-﻿namespace TestPressReleases.Pages
+﻿namespace Pages
 {
     using OpenQA.Selenium;
-    using WebDriver;
+    using WDriver;
 
-    internal class MainPage : BasePage
+    public class MainPage : BasePage
     {
         private static readonly BaseElement Copyright = new BaseElement(By.ClassName("text-right"));
 

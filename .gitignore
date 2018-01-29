@@ -1,0 +1,13 @@
+*/*.suo
+*/*.user
+v_ReSharper.*/
+*/.vs/
+*/bin/
+*/obj/
+*/Debug/
+*/Release/
+*/packages/
+*/*.log
+*/TestResults/
+*/*.TMP
+*/*.jar

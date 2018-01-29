@@ -1,10 +1,10 @@
-﻿namespace TestPressReleases.Tests
+﻿namespace Tests
 {
     using Assert;
     using NUnit.Framework;
     using OpenQA.Selenium;
     using Pages;
-    using WebDriver;
+    using WDriver;
 
     [TestFixture]
     internal class BaseTest
@@ -16,9 +16,9 @@
         [SetUp]
         public void SetupTest()
         {
-            Driver = WebDriver.Instance;
-            WebDriver.NavigateTo(Config.StartUrl);
-            WebDriver.WindowMaximise();
+            Driver = WDriver.Instance;
+            WDriver.NavigateTo(Config.StartUrl);
+            WDriver.WindowMaximise();
             this.SoftAssert = new SoftAssertions();
         }
 
@@ -27,7 +27,7 @@
         {
             this.SoftAssert.AssertAll();
             SitePages.IsOpen = false;
-            WebDriver.Quit();
+            WDriver.Quit();
         }
     }
 }

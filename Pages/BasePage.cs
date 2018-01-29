@@ -1,9 +1,9 @@
-﻿namespace TestPressReleases.Pages
+﻿namespace Pages
 {
     using OpenQA.Selenium;
-    using WebDriver;
+    using WDriver;
 
-    internal class BasePage
+    public class BasePage
     {
         protected BasePage(By titleLocator, string title)
         {
@@ -19,7 +19,7 @@
         private void AssertIsOpen()
         {
             var label = new BaseElement(this.TitleLocator, this.Title);
-            WebDriver.WaitForIsVisible(this.TitleLocator);
+            WDriver.WaitForIsVisible(this.TitleLocator);
         }
     }
 }

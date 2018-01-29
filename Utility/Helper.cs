@@ -1,4 +1,4 @@
-﻿namespace TestPressReleases
+﻿namespace Utility
 {
     using System;
     using System.Collections.Generic;
@@ -6,11 +6,11 @@
     using System.Linq;
     using System.Net;
     using System.Text.RegularExpressions;
-    using WebDriver;
+    using WDriver;
 
-    internal static class Helper
+    public static class Helper
     {
-        internal static void PostHandlingForDateOfPressReleases(List<string> titlesOfPressReleases, bool isPageOfPressRelease)
+        public static void PostHandlingForDateOfPressReleases(List<string> titlesOfPressReleases, bool isPageOfPressRelease)
         {
             if (!isPageOfPressRelease)
             {
@@ -30,7 +30,7 @@
             }
         }
 
-        internal static long GetContentLengthByLink(string url)
+        public static long GetContentLengthByLink(string url)
         {
             if (!string.IsNullOrWhiteSpace(url))
             {
@@ -45,7 +45,7 @@
             }
         }
 
-        internal static void JoinStringsInListByPair(List<string> toPair)
+        public static void JoinStringsInListByPair(List<string> toPair)
         {
             string date;
             string title;
@@ -61,7 +61,7 @@
             }
         }
 
-        internal static List<string> GetListWithOnlySomeDeltaOfIndex(List<string> originalList, int deltaIndex)
+        public static List<string> GetListWithOnlySomeDeltaOfIndex(List<string> originalList, int deltaIndex)
         {
             List<string> valueToReturn = new List<string>();
 

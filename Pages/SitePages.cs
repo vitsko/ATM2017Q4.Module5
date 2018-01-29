@@ -1,23 +1,23 @@
-﻿namespace TestPressReleases.Pages
+﻿namespace Pages
 {
     using OpenQA.Selenium;
-    using WebDriver;
+    using WDriver;
 
-    internal class SitePages
+    public class SitePages
     {
-        internal enum Pages
+        public enum Pages
         {
             PageOfPressReleases
         }
 
-        internal static bool IsOpen { get; set; }
+        public static bool IsOpen { get; set; }
 
-        internal static BasePage NavigatePageTo(BaseElement pointMenuToHover, BaseElement pointMenuToClick, SitePages.Pages page)
+        public static BasePage NavigatePageTo(BaseElement pointMenuToHover, BaseElement pointMenuToClick, SitePages.Pages page)
         {
-            WebDriver.HoverOnElement(pointMenuToHover);
+            WDriver.HoverOnElement(pointMenuToHover);
 
             var elementToClick = pointMenuToClick.FindElement(pointMenuToClick.Locator);
-            WebDriver.SetBackgroundColorForElement(elementToClick);
+            WDriver.SetBackgroundColorForElement(elementToClick);
             pointMenuToClick.Click();
 
             return SitePages.GetPage(page);

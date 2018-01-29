@@ -1,17 +1,17 @@
-﻿namespace TestPressReleases.Assert
+﻿namespace Assert
 {
-    internal class SingleAssert
+    public class SingleAssert
     {
         private readonly string message;
         private readonly bool result;
 
-        internal SingleAssert(bool result, string message)
+        public SingleAssert(bool result, string message)
         {
             this.result = result;
             this.message = message;
         }
 
-        internal bool Failed => !this.result;
+        public bool Failed => !this.result;
 
         public override string ToString()
         {
