@@ -46,20 +46,6 @@
             return this.Element.Text;
         }
 
-        public IWebElement GetElement()
-        {
-            try
-            {
-                this.Element = WDriver.GetDriver().FindElement(this.Locator);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-
-            return this.Element;
-        }
-
         public void Clear()
         {
             throw new NotImplementedException();

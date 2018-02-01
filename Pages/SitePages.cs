@@ -1,6 +1,5 @@
 ﻿namespace Pages
 {
-    using OpenQA.Selenium;
     using WDriver;
 
     public class SitePages
@@ -10,7 +9,7 @@
             PageOfPressReleases
         }
 
-        public static bool IsOpen { get; set; }
+        public static bool IsOpen { get; private set; }
 
         public static BasePage NavigatePageTo(BaseElement pointMenuToHover, BaseElement pointMenuToClick, SitePages.Pages page)
         {
@@ -21,6 +20,11 @@
             pointMenuToClick.Click();
 
             return SitePages.GetPage(page);
+        }
+
+        public static void Close()
+        {
+            SitePages.IsOpen = false;
         }
 
         private static BasePage GetPage(Pages page)

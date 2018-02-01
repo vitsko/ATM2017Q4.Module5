@@ -26,7 +26,7 @@
         public void CleanUpTestClass()
         {
             this.SoftAssert.AssertAll();
-            SitePages.IsOpen = false;
+            SitePages.Close();
             WDriver.Quit();
         }
     }

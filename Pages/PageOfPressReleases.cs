@@ -111,11 +111,7 @@
 
             foreach (var pressReleas in pressReleases)
             {
-                pressReleas.Title = new string[]
-                {
-                    titlesOfPressReleases.ElementAt(0),
-                    titlesOfPressReleases.ElementAt(1)
-                };
+                pressReleas.WriteTitle(titlesOfPressReleases.ElementAt(0), titlesOfPressReleases.ElementAt(1));
 
                 titlesOfPressReleases.RemoveRange(0, 2);
                 titlesOfPressReleases.Add(string.Empty);
@@ -138,20 +134,7 @@
                 {
                     var url = elementsWithUrl.First().GetAttribute(attribute);
 
-                    switch (fileType)
-                    {
-                        case SizeOfFile.Image:
-                            pressRelease.ElementAt(i).SizeOfImageByAnnouncement = Helper.GetContentLengthByLink(url);
-                            break;
-
-                        case SizeOfFile.WatchPDF:
-                            pressRelease.ElementAt(i).SizeOfFileToWatchPDF = Helper.GetContentLengthByLink(url);
-                            break;
-
-                        case SizeOfFile.DownloadPDF:
-                            pressRelease.ElementAt(i).SizeOfFileToDownloadPDF = Helper.GetContentLengthByLink(url);
-                            break;
-                    }
+                    pressRelease.ElementAt(i).WriteSizeOfFile(fileType, url);
                 }
             }
 
@@ -209,10 +192,7 @@
 
             for (int i = 0; i < listOfIdForPressReleases.Count; i++)
             {
-                var pressReleas = new PressRelease();
-                pressReleas.Id = listOfIdForPressReleases.ElementAt(i);
-
-                pressReleases.Add(pressReleas);
+                pressReleases.Add(new PressRelease(listOfIdForPressReleases.ElementAt(i)));
             }
 
             return pressReleases;

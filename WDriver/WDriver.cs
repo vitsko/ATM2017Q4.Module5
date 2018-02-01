@@ -81,7 +81,7 @@
                                               .Perform();
         }
 
-        public static IWebDriver OpenLinkInNewTab(IWebElement element, out List<string> windowsHandles)
+        public static IWebDriver OpenLinkInNewTab(IWebElement element)
         {
             new Actions(WDriver.GetDriver())
                                               .KeyDown(Keys.Control)
@@ -90,7 +90,7 @@
 
             element.Click();
 
-            windowsHandles = WDriver.GetDriver().WindowHandles.ToList();
+            var windowsHandles = WDriver.GetDriver().WindowHandles.ToList();
 
             return WDriver.GetDriver().SwitchTo().Window(windowsHandles.Last());
         }

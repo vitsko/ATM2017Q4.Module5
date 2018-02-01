@@ -1,7 +1,9 @@
 ﻿namespace Tests
 {
+    using System.Collections.Generic;
     using System.Linq;
     using NUnit.Framework;
+    using OpenQA.Selenium;
     using Pages;
     using Utility;
     using WDriver;
@@ -142,7 +144,25 @@
         {
             var pressReleases = ListOfPressReleases.PressReleasesWithTitle();
             var elementsWithLink = ListOfPressReleases.GetElementsOfLinkToPageOfPressRelease();
-            var titlesOfPressReleasesOnPage = PageOfPressRelease.GetTitlesOfPressRelease(elementsWithLink);
+
+            var titlesOfPressReleasesOnPage = new List<string>();
+
+            foreach (var link in elementsWithLink)
+            {
+                var tab = WDriver.OpenLinkInNewTab(link);
+                var pageOfPressRelease = new PageOfPressRelease();
+                titlesOfPressReleasesOnPage.AddRange(pageOfPressRelease.GetTitleOfPressReleaseOnPage());
+
+                tab.Close();
+
+                WDriver.GetDriver().SwitchTo().Window(WDriver.GetDriver().WindowHandles.First());
+
+                // Press on Control otherwise link opens on current tab.
+                WDriver.GetDriver().Keyboard.PressKey(Keys.Control);
+            }
+
+            Helper.PostHandlingForDateOfPressReleases(titlesOfPressReleasesOnPage, true);
+            Helper.JoinStringsInListByPair(titlesOfPressReleasesOnPage);
 
             for (int i = 0; i < pressReleases.Count; i++)
             {
