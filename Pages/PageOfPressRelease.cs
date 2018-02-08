@@ -6,7 +6,7 @@
 
     public class PageOfPressRelease : BasePage
     {
-        private static readonly BaseElement ContactList = new BaseElement(By.XPath("//div[contains(@class,'panel-contact')]//h4"));
+        private static readonly BaseElement ContactList = new BaseElement(By.XPath("//div[@class='copy text-right']"));
 
         public PageOfPressRelease() : base(PageOfPressRelease.ContactList.Locator, "Page of Press-Release")
         {

@@ -22,6 +22,9 @@
         public static readonly BaseElement MenuPressCenter = new BaseElement(By.XPath("//li[@id='435aa1d6-2ddd-43b5-9564-3a986dd3d526']"));
         public static readonly BaseElement MenuPressReleases = new BaseElement(By.XPath(string.Format("//a[text()='{0}']", Config.MenuPressReleases)));
 
+        private static readonly string XpathToLinkOfPageOnPressRelease = "//a[contains(@class,'icon-s-chevron-link')]";
+        private static readonly string XpathToTitleOfPressRelease = "//div[@class='panel-heading']//span";
+
         private static readonly BaseElement PressReleases = new BaseElement(By.ClassName("pressrelease-list-widget"));
         private static readonly BaseElement TitleOfPressReleases = new BaseElement(By.XPath("//div[@class='panel-heading']//span"));
         private static readonly BaseElement Announcement = new BaseElement(By.XPath("//div[@class='tableOverflow']"));
@@ -104,17 +107,21 @@
 
         public List<PressRelease> PressReleasesWithTitle()
         {
-            var titlesOfPressReleases = PageOfPressReleases.TitleOfPressReleases.GetValueBySpecialFuncSelector(iwebElement => iwebElement.Text);
-            Helper.PostHandlingForDateOfPressReleases(titlesOfPressReleases, false);
-
             var pressReleases = this.PressReleasesWithId();
 
-            foreach (var pressReleas in pressReleases)
-            {
-                pressReleas.WriteTitle(titlesOfPressReleases.ElementAt(0), titlesOfPressReleases.ElementAt(1));
+            int skipCount = 0;
 
-                titlesOfPressReleases.RemoveRange(0, 2);
-                titlesOfPressReleases.Add(string.Empty);
+            var by = By.XPath(PageOfPressReleases.XpathToTitleOfPressRelease);
+
+            foreach (var pressRelease in pressReleases)
+            {
+                var title = WDriver.GetListValueWithSkipAndTakeElements(by, skipCount, 2);
+
+                skipCount += 2;
+
+                Helper.PostHandlingForDateOfPressReleases(title, false);
+
+                pressRelease.WithTitle(title.ElementAt(0), title.ElementAt(1));
             }
 
             return pressReleases;
@@ -134,7 +141,7 @@
                 {
                     var url = elementsWithUrl.First().GetAttribute(attribute);
 
-                    pressRelease.ElementAt(i).WriteSizeOfFile(fileType, url);
+                    pressRelease.ElementAt(i).WithSizeOfFile(fileType, url);
                 }
             }
 
@@ -148,7 +155,7 @@
 
             for (int i = 0; i < pressRelease.Count; i++)
             {
-                pressRelease.ElementAt(i).Announcement = announcements.ElementAt(i);
+                pressRelease.ElementAt(i).WithAnnouncement(announcements.ElementAt(i));
             }
 
             return pressRelease;
@@ -186,29 +193,22 @@
 
         private List<PressRelease> PressReleasesWithId()
         {
-            var listOfIdForPressReleases = this.GetListOfIdForPressReleases();
-
             var pressReleases = new List<PressRelease>();
 
-            for (int i = 0; i < listOfIdForPressReleases.Count; i++)
+            if (WDriver.GetDriver().FindElements(By.XPath(PageOfPressReleases.XpathToLinkOfPageOnPressRelease)).Count != 0)
             {
-                pressReleases.Add(new PressRelease(listOfIdForPressReleases.ElementAt(i)));
+                var allTabWithPressReleases = WDriver.GetDriver().FindElements(By.XPath(PageOfPressReleases.XpathToLinkOfPageOnPressRelease));
+
+                foreach (var elementWithId in allTabWithPressReleases)
+                {
+                    pressReleases.Add(new PressRelease(int.Parse(elementWithId.GetAttribute(PageOfPressReleases.AttributeHref)
+                                                                                           .Replace(
+                                                                                                    Config.PatternToUrlOnPageOfPressRelease,
+                                                                                                    string.Empty))));
+                }
             }
 
             return pressReleases;
-        }
-
-        private List<int> GetListOfIdForPressReleases()
-        {
-            var elementsWithLink = this.GetElementsOfLinkToPageOfPressRelease();
-            var listOfIdForPressReleases = new List<int>();
-
-            foreach (var element in elementsWithLink)
-            {
-                listOfIdForPressReleases.Add(int.Parse(element.GetAttribute(PageOfPressReleases.AttributeHref).Replace(Config.PatternToUrlOnPageOfPressRelease, string.Empty)));
-            }
-
-            return listOfIdForPressReleases;
         }
 
         private List<PressRelease> PressReleasesWithDate()
@@ -222,7 +222,7 @@
 
             for (int i = 0; i < pressReleases.Count; i++)
             {
-                pressReleases.ElementAt(i).Date = DateTime.Parse(onlyDate.ElementAt(i));
+                pressReleases.ElementAt(i).WithDate(DateTime.Parse(onlyDate.ElementAt(i)));
             }
 
             return pressReleases;

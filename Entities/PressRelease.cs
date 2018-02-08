@@ -24,26 +24,28 @@
 
         public long SizeOfImageByAnnouncement { get; private set; }
 
-        public string Announcement { get; set; }
+        public string Announcement { get; private set; }
 
         public long SizeOfFileToWatchPDF { get; private set; }
 
         public long SizeOfFileToDownloadPDF { get; private set; }
 
-        public DateTime Date { get; set; }
+        public DateTime Date { get; private set; }
 
         public int Id { get; private set; }
 
-        public void WriteTitle(string date, string name)
+        public PressRelease WithTitle(string date, string name)
         {
             this.Title = new string[]
             {
                 date,
                 name
             };
+
+            return this;
         }
 
-        public void WriteSizeOfFile(SizeOfFile fileType, string url)
+        public PressRelease WithSizeOfFile(SizeOfFile fileType, string url)
         {
             switch (fileType)
             {
@@ -59,6 +61,20 @@
                     this.SizeOfFileToDownloadPDF = Helper.GetContentLengthByLink(url);
                     break;
             }
+
+            return this;
+        }
+
+        public PressRelease WithAnnouncement(string textOfAnnouncement)
+        {
+            this.Announcement = textOfAnnouncement;
+            return this;
+        }
+
+        public PressRelease WithDate(DateTime date)
+        {
+            this.Date = date;
+            return this;
         }
     }
 }

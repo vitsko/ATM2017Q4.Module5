@@ -9,6 +9,8 @@
         private static CultureInfo culture;
         private static DateTime today = DateTime.Today;
 
+        public static string Browser => GetEnviromentVar("Browser", "Chrome");
+
         public static string Timeout => GetEnviromentVar("TimeoutInSec", "2");
 
         public static string MenuPressReleases => Config.StartUrl.Contains(".ru") ?

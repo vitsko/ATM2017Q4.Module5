@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using OpenQA.Selenium;
-    using OpenQA.Selenium.Chrome;
     using OpenQA.Selenium.Interactions;
     using OpenQA.Selenium.Remote;
     using OpenQA.Selenium.Support.UI;
@@ -12,10 +11,11 @@
     public class WDriver
     {
         private static RemoteWebDriver driver;
+        private static WDriverType currentBrowser;
+        private static string browser;
 
         private WDriver()
         {
-            WDriver.driver = new ChromeDriver();
         }
 
         public static IWebDriver Instance
@@ -24,16 +24,8 @@
             {
                 if (WDriver.driver == null)
                 {
-                    if (Config.IsSeleniumGrid)
-                    {
-                        ChromeOptions options = new ChromeOptions();
-                        options.PlatformName = PlatformType.Windows.ToString();
-                        WDriver.driver = new RemoteWebDriver(new Uri(Config.URLToHubOfSeleniumGrid), options.ToCapabilities());
-                    }
-                    else
-                    {
-                        WDriver.driver = new ChromeDriver();
-                    }
+                    WDriver.InitDriver();
+                    WDriver.driver = WDriveFactory.InitBrowser(currentBrowser);
                 }
 
                 return WDriver.driver;
@@ -53,11 +45,6 @@
         public static RemoteWebDriver GetDriver()
         {
             return WDriver.driver;
-        }
-
-        public static void Close()
-        {
-            WDriver.driver.Close();
         }
 
         public static void Quit()
@@ -83,12 +70,9 @@
 
         public static IWebDriver OpenLinkInNewTab(IWebElement element)
         {
-            new Actions(WDriver.GetDriver())
-                                              .KeyDown(Keys.Control)
-                                              .Build()
-                                              .Perform();
-
-            element.Click();
+            ((IJavaScriptExecutor)WDriver.GetDriver())
+                                                      .ExecuteScript(string
+                                                                           .Format("window.open('{0}'),'_blank'", element.GetAttribute("href")));
 
             var windowsHandles = WDriver.GetDriver().WindowHandles.ToList();
 
@@ -103,6 +87,24 @@
         public static void SetBackgroundColorForElement(IWebElement element)
         {
             WDriver.driver.ExecuteScript("arguments[0].style.backgroundColor = '" + Config.ColorForElement + "'", element);
+        }
+
+        public static List<string> GetListValueWithSkipAndTakeElements(By by, int skipCount, int takeCount)
+        {
+            WDriver.WaitForIsVisible(by);
+
+            return WDriver.driver.FindElements(by)
+                                 .ToList()
+                                 .Select(iwebElement => iwebElement.Text)
+                                 .Skip(skipCount)
+                                 .Take(takeCount)
+                                 .ToList();
+        }
+
+        private static void InitDriver()
+        {
+            WDriver.browser = Config.Browser;
+            Enum.TryParse(WDriver.browser, out currentBrowser);
         }
     }
 }

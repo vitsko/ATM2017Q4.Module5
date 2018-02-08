@@ -156,9 +156,6 @@
                 tab.Close();
 
                 WDriver.GetDriver().SwitchTo().Window(WDriver.GetDriver().WindowHandles.First());
-
-                // Press on Control otherwise link opens on current tab.
-                WDriver.GetDriver().Keyboard.PressKey(Keys.Control);
             }
 
             Helper.PostHandlingForDateOfPressReleases(titlesOfPressReleasesOnPage, true);
