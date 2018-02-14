@@ -56,6 +56,8 @@
 
         public static string ColorForElement => GetEnviromentVar("ColorForElement", "red");
 
+        public static string PatternDate => Config.StartUrl.Contains(".ru") ? "dd.MM.yyyy" : "MM/dd/yyyy";
+
         private static string LanguageVersion => Config.URLOfPressReleases.Contains(".ru") ? "ru" : "en";
 
         private static string GetEnviromentVar(string var, string defaultValue)

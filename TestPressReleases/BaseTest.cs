@@ -1,31 +1,31 @@
 ﻿namespace Tests
 {
     using Assert;
-    using NUnit.Framework;
     using OpenQA.Selenium;
     using Pages;
+    using TechTalk.SpecFlow;
     using WDriver;
 
-    [TestFixture]
-    internal class BaseTest
+    [Binding]
+    public class BaseTest
     {
-        protected SoftAssertions SoftAssert { get; set; }
+        protected static SoftAssertions SoftAssert { get; set; }
 
         private static IWebDriver Driver { get; set; }
 
-        [SetUp]
-        public void SetupTest()
+        [BeforeScenario]
+        public static void SetupTest()
         {
             Driver = WDriver.Instance;
             WDriver.NavigateTo(Config.StartUrl);
             WDriver.WindowMaximise();
-            this.SoftAssert = new SoftAssertions();
+            BaseTest.SoftAssert = new SoftAssertions();
         }
 
-        [TearDown]
-        public void CleanUpTestClass()
+        [AfterScenario]
+        public static void CleanUpTestClass()
         {
-            this.SoftAssert.AssertAll();
+            BaseTest.SoftAssert.AssertAll();
             SitePages.Close();
             WDriver.Quit();
         }

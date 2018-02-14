@@ -72,5 +72,10 @@
 
             return valueToReturn;
         }
+
+        public static void GetDateOnStringByCulture(string dateOnString, out DateTime date)
+        {
+            DateTime.TryParse(dateOnString, Config.Culture, DateTimeStyles.AllowWhiteSpaces, out date);
+        }
     }
 }

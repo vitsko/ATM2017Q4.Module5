@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Linq;
     using Entities;
     using OpenQA.Selenium;
@@ -22,56 +21,21 @@
         public static readonly BaseElement MenuPressCenter = new BaseElement(By.XPath("//li[@id='435aa1d6-2ddd-43b5-9564-3a986dd3d526']"));
         public static readonly BaseElement MenuPressReleases = new BaseElement(By.XPath(string.Format("//a[text()='{0}']", Config.MenuPressReleases)));
 
+        private static readonly BaseElement TitleOfPressReleases = new BaseElement(By.XPath("//div[@class='panel-heading']//span"));
+
         private static readonly string XpathToLinkOfPageOnPressRelease = "//a[contains(@class,'icon-s-chevron-link')]";
         private static readonly string XpathToTitleOfPressRelease = "//div[@class='panel-heading']//span";
 
         private static readonly BaseElement PressReleases = new BaseElement(By.ClassName("pressrelease-list-widget"));
-        private static readonly BaseElement TitleOfPressReleases = new BaseElement(By.XPath("//div[@class='panel-heading']//span"));
+
         private static readonly BaseElement Announcement = new BaseElement(By.XPath("//div[@class='tableOverflow']"));
 
         private string calendarFromId = "calendar-from";
         private string calendarToId = "calendar-to";
 
-        private string patternDate;
-
         public PageOfPressReleases() : base(PressReleases.Locator, "Press Releases")
         {
             PageFactory.InitElements(WDriver.GetDriver(), this);
-        }
-
-        public DateTime DateFrom
-        {
-            get
-            {
-                DateTime parse;
-                DateTime.TryParse(Config.DateFrom, Config.Culture, DateTimeStyles.AllowWhiteSpaces, out parse);
-
-                return parse;
-            }
-        }
-
-        public DateTime DateTo
-        {
-            get
-            {
-                DateTime parse;
-                DateTime.TryParse(Config.DateTo, Config.Culture, DateTimeStyles.AllowWhiteSpaces, out parse);
-
-                return parse;
-            }
-        }
-
-        public string PatternDate
-        {
-            get
-            {
-                if (string.IsNullOrWhiteSpace(this.patternDate))
-                {
-                    this.patternDate = Config.StartUrl.Contains(".ru") ? "dd.MM.yyyy" : "MM/dd/yyyy";
-                }
-
-                return this.patternDate;
-            }
         }
 
         [FindsBy(How = How.XPath, Using = "//button[contains(@class,'filter-btn')]")]
@@ -86,12 +50,11 @@
         [FindsBy(How = How.XPath, Using = "//a[contains(@class,'icon-s-chevron-link')]")]
         private IWebElement LinkToPageOfPressRelease { get; set; }
 
-        public List<IWebElement> PressReleasesToCount()
+        public int CountOfPressReleasesOnList()
         {
             WDriver.WaitForIsVisible(By.XPath("//div[@role='tablist']"));
 
-            var pressReleases = new List<IWebElement>(this.TableOfPressReleases.FindElements(By.XPath("//div[@role='tablist']")).ToList());
-            return pressReleases;
+            return this.TableOfPressReleases.FindElements(By.XPath("//div[@role='tablist']")).Count;
         }
 
         public PageOfPressReleases ClickLoadMore()
@@ -166,12 +129,12 @@
             return this.LinkToPageOfPressRelease.FindElements(By.XPath("//a[contains(@class,'icon-s-chevron-link')]")).ToList();
         }
 
-        public List<PressRelease> FilterPressReleasesByDate()
+        public List<PressRelease> FilterPressReleasesByDate(string dateFrom, string dateTo)
         {
             var pressReleases = new List<PressRelease>();
 
-            WDriver.SetValueByScript("Id", this.calendarFromId, this.DateFrom.ToString(this.PatternDate));
-            WDriver.SetValueByScript("Id", this.calendarToId, this.DateTo.ToString(this.PatternDate));
+            WDriver.SetValueByScript("Id", this.calendarFromId, dateFrom);
+            WDriver.SetValueByScript("Id", this.calendarToId, dateTo);
 
             // Sometimes test failed because of button isn't clickable.
             WDriver.GetDriver().ExecuteScript("scroll(250, 0)");
