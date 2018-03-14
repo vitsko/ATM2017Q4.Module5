@@ -1,0 +1,42 @@
+﻿<!doctype html>
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Report</title>
+    {{> foundation_style}}
+    {{> report_style}}
+</head>
+<body>
+    {{> jquery_javascript}}
+    {{> foundation_javascript}}
+
+    <div class="callout large primary report-header">
+        <div class="row column text-center">
+            <h1>{{application_title}}</h1>
+            <h2 class="subheader">Test Report for automated tests</h2>
+        </div>
+    </div>
+
+    <div id="test-results">
+        <div class="row large-12 columns">
+            <h3>Test results</h3>
+            <div class="row header-row">
+                <div class="large-10 columns">
+                    <span class="header">Test name</span>
+                </div>
+                <div class="large-2 columns">
+                    <span class="header">Status</span>
+                </div>
+            </div>
+            {{#test_results}}
+              {{> test_result_row}}
+            {{/test_results}}
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(document).foundation();
+    </script>
+</body>
+</html>

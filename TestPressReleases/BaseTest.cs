@@ -7,7 +7,7 @@
     using WDriver;
 
     [TestFixture]
-    internal class BaseTest
+    internal class BaseTest : BaseTestForNUnit
     {
         protected SoftAssertions SoftAssert { get; set; }
 
@@ -25,9 +25,9 @@
         [TearDown]
         public void CleanUpTestClass()
         {
-            this.SoftAssert.AssertAll();
             SitePages.Close();
             WDriver.Quit();
+            this.SoftAssert.AssertAll();
         }
     }
 }

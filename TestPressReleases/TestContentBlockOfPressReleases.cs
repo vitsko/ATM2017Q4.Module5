@@ -3,7 +3,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using NUnit.Framework;
-    using OpenQA.Selenium;
     using Pages;
     using Utility;
     using WDriver;

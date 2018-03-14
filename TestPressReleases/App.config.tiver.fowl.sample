@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+  <!-- Configuration section-handler declaration area. -->
+  <configSections>
+    <sectionGroup name="browserConfigurationGroup">
+      <section
+        name="browserConfiguration"
+        type="Tiver.Fowl.WebDriverExtended.Configuration.BrowserConfigurationSection, Tiver.Fowl.WebDriverExtended"
+        allowLocation="true"
+        allowDefinition="Everywhere" />
+    </sectionGroup>
+    <sectionGroup name="waitConfigurationGroup">
+      <section
+        name="waitConfiguration"
+        type="Tiver.Fowl.Core.Configuration.WaitConfigurationSection, Tiver.Fowl.Core"
+        allowLocation="true"
+        allowDefinition="Everywhere" />
+    </sectionGroup>
+    <sectionGroup name="applicationConfigurationGroup">
+      <section
+        name="applicationConfiguration"
+        type="Tiver.Fowl.Core.Configuration.ApplicationConfigurationSection, Tiver.Fowl.Core"
+        allowLocation="true"
+        allowDefinition="Everywhere" />
+    </sectionGroup>
+  </configSections>
+
+  Configuration section settings area.
+  <browserConfigurationGroup>
+    <browserConfiguration
+      browserType="chrome">
+      <resolution
+        width="800"
+        height="600" />
+    </browserConfiguration>
+  </browserConfigurationGroup>
+  <waitConfigurationGroup>
+    <waitConfiguration
+      timeout="5000"
+      pollingInterval="250" />
+  </waitConfigurationGroup>
+  <applicationConfigurationGroup>
+    <applicationConfiguration
+      title="System Under Test Title"
+      startUrl="http://localhost/" />
+  </applicationConfigurationGroup>
+</configuration>

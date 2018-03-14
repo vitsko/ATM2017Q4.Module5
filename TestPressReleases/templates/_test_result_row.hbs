@@ -1,0 +1,58 @@
+﻿<div class="row test-row" id="{{test_report_id}}">
+    <div class="large-10 columns">
+        <span class="test-name">{{test_name}}</span>
+    </div>
+    <div class="large-2 columns">
+        <span class="test-status" style="color: {{status_color}};">{{status}}</span>
+    </div>
+</div>
+<div id="actions-{{test_report_id}}">
+    {{#details}}
+        {{#if is_action}}
+            <div class="row test-actions-row">
+                <div class="large-2 columns">
+                    <span class="test-name">{{element}}</span>
+                </div>
+                <div class="large-10 columns">
+                    <span class="test-status">{{action}}</span>
+                </div>
+            </div>
+        {{/if}}
+        {{#if is_step}}
+            <div class="row test-steps-row">
+                <div class="large-1 columns">
+                    <span class="test-step-number">Step #{{step}}</span>
+                </div>
+                <div class="large-11 columns">
+                    <span class="test-step-text">{{text}}</span>
+                </div>
+            </div>
+        {{/if}}
+    {{/details}}
+    <div class="row test-screenshots-row">
+        <div class="large-12 columns">
+            {{#screenshots}}
+                <img id="{{screenshot_id}}" src="data:image/png;base64,{{base64}}" />
+                <script type="text/javascript">
+                    $(function () {
+                        $("#{{screenshot_id}}").click(function () {
+                            if ($("#{{screenshot_id}}").css("max-width") == "100%") {
+                                $("#{{screenshot_id}}").css("max-width", "24em");
+                            } else {
+                                $("#{{screenshot_id}}").css("max-width", "100%");
+                            }
+                        });
+                    });
+                </script>
+            {{/screenshots}}
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function() {
+        $("#{{test_report_id}}").click(function () {
+            $("#actions-{{test_report_id}}").slideToggle();
+        });
+        $("#actions-{{test_report_id}}").hide();
+    });
+</script>
