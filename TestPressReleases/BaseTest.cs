@@ -4,6 +4,7 @@
     using NUnit.Framework;
     using OpenQA.Selenium;
     using Pages;
+    using Serilog;
     using WDriver;
 
     [TestFixture]
@@ -18,6 +19,9 @@
         {
             Driver = WDriver.Instance;
             WDriver.NavigateTo(Config.StartUrl);
+
+            Log.Information(string.Format(Resource.OpenPage, WDriver.GetDriver().Url));
+
             WDriver.WindowMaximise();
             this.SoftAssert = new SoftAssertions();
         }
@@ -26,8 +30,12 @@
         public void CleanUpTestClass()
         {
             SitePages.Close();
-            WDriver.Quit();
             this.SoftAssert.AssertAll();
+        }
+
+        protected void WriteToLogFailedSoftAssertsMessage(string message)
+        {
+            Log.Error(string.Format(Resource.ResultError, message));
         }
     }
 }

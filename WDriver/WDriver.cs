@@ -2,6 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Drawing;
+    using System.Drawing.Imaging;
+    using System.IO;
     using System.Linq;
     using OpenQA.Selenium;
     using OpenQA.Selenium.Interactions;
@@ -32,6 +36,8 @@
             }
         }
 
+        public static Screenshot ScreenShot { get; private set; }
+
         public static void WindowMaximise()
         {
             WDriver.driver.Manage().Window.Maximize();
@@ -55,7 +61,14 @@
 
         public static void WaitForIsVisible(By by)
         {
-            new WebDriverWait(WDriver.GetDriver(), TimeSpan.FromSeconds(int.Parse(Config.Timeout))).Until(ExpectedConditions.VisibilityOfAllElementsLocatedBy(by));
+            try
+            {
+                new WebDriverWait(WDriver.GetDriver(), TimeSpan.FromSeconds(int.Parse(Config.Timeout))).Until(ExpectedConditions.VisibilityOfAllElementsLocatedBy(by));
+            }
+            catch
+            {
+                Debug.WriteLine(string.Format("Timed out after {0} seconds)", Config.Timeout));
+            }
         }
 
         public static void HoverOnElement(BaseElement element)
@@ -99,6 +112,31 @@
                                  .Skip(skipCount)
                                  .Take(takeCount)
                                  .ToList();
+        }
+
+        public static string TakeScreenshot(string directory, string testName)
+        {
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            var screenFileName = string.Format(
+                                                  "{0} {1}.{2}",
+                                                  testName,
+                                                  DateTime.Now.ToString("dd.MM hhmmss"),
+                                                  ImageFormat.Jpeg.ToString().ToLowerInvariant());
+
+            var screenPass = Path.Combine(directory, screenFileName);
+
+            ScreenShot = ((ITakesScreenshot)WDriver.GetDriver()).GetScreenshot();
+
+            using (var screenshot = Image.FromStream(new MemoryStream(ScreenShot.AsByteArray)))
+            {
+                screenshot.Save(screenPass);
+            }
+
+            return screenPass;
         }
 
         private static void InitDriver()

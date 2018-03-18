@@ -3,6 +3,7 @@
     using System;
     using System.Configuration;
     using System.Globalization;
+    using System.IO;
 
     public static class Config
     {
@@ -55,6 +56,16 @@
         public static string URLToHubOfSeleniumGrid => GetEnviromentVar("URLToHubOfSeleniumGrid", "http://localhost:4444/wd/hub");
 
         public static string ColorForElement => GetEnviromentVar("ColorForElement", "red");
+
+        public static string FolderToScreenshot => Path.Combine(".", GetEnviromentVar("FolderToScreenshot", "screenshot"));
+
+        public static string FolderToLog => Path.Combine(".", GetEnviromentVar("FolderToLog", "logs"));
+
+        public static string FileToLog => Path.Combine(Config.FolderToLog, string.Format("{0}-{1}.txt", GetEnviromentVar("FileToLog", "log"), DateTime.Now.ToString("dd.MM")));
+
+        public static string FolderToReport => Path.Combine(".", GetEnviromentVar("FolderToReport", "reports"));
+
+        public static string FileToReport => Path.Combine(Config.FolderToReport, string.Format("{0}-{1}.html", GetEnviromentVar("FileToReport", "report"), DateTime.Now.ToString("dd.MM hhmmss")));
 
         private static string LanguageVersion => Config.URLOfPressReleases.Contains(".ru") ? "ru" : "en";
 

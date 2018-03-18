@@ -75,34 +75,6 @@
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="Tiver.Fowl.Core, Version=1.0.6371.28207, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Tiver.Fowl.0.1.5.5\lib\net45\Tiver.Fowl.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Tiver.Fowl.Logging, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Tiver.Fowl.0.1.5.5\lib\net45\Tiver.Fowl.Logging.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Tiver.Fowl.Reporting, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Tiver.Fowl.0.1.5.5\lib\net45\Tiver.Fowl.Reporting.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Tiver.Fowl.TestingBase, Version=1.0.6371.28223, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Tiver.Fowl.0.1.5.5\lib\net45\Tiver.Fowl.TestingBase.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Tiver.Fowl.ViewBase, Version=1.0.6371.28221, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Tiver.Fowl.0.1.5.5\lib\net45\Tiver.Fowl.ViewBase.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Tiver.Fowl.WebDriverExtended, Version=1.0.6371.28214, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Tiver.Fowl.0.1.5.5\lib\net45\Tiver.Fowl.WebDriverExtended.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Tiver.Fowl.WebDriverExtended.Contracts, Version=1.0.6371.28204, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Tiver.Fowl.0.1.5.5\lib\net45\Tiver.Fowl.WebDriverExtended.Contracts.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="WebDriver, Version=3.11.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\Selenium.WebDriver.3.11.0\lib\net45\WebDriver.dll</HintPath>
       <Private>True</Private>
@@ -123,7 +95,6 @@
   <ItemGroup>
     <Compile Include="BaseTest.cs" />
     <Compile Include="BaseTestForNUnit.cs" />
-    <Compile Include="Elements\Textbox.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resource.Designer.cs">
       <DependentUpon>Resource.resx</DependentUpon>
@@ -136,8 +107,6 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="App.config.tiver.fowl.sample" />
-    <None Include="Default.runsettings" />
     <None Include="Default.testsettings" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
@@ -147,6 +116,10 @@
     <ProjectReference Include="..\Entities\Entities.csproj">
       <Project>{32e8416b-a5f8-4042-91dc-a78acb7a3684}</Project>
       <Name>Entities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Logger\Logger.csproj">
+      <Project>{fe2c0124-ff24-497d-88e8-7b1c81888c8a}</Project>
+      <Name>Logger</Name>
     </ProjectReference>
     <ProjectReference Include="..\Pages\Pages.csproj">
       <Project>{7ec32317-8a77-432d-bea1-89457a0d5c9a}</Project>
@@ -170,10 +143,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="lib\chromedriver.exe" />
-    <Content Include="lib\geckodriver.exe" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

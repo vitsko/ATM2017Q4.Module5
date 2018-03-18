@@ -2,8 +2,10 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using Logger;
     using NUnit.Framework;
     using Pages;
+    using Serilog;
     using Utility;
     using WDriver;
     using static Entities.PressRelease;
@@ -26,6 +28,8 @@
                                                                          SitePages.Pages.PageOfPressReleases);
                 }
 
+                Log.Information(string.Format(Resource.OpenPage, WDriver.GetDriver().Url));
+
                 return page;
             }
         }
@@ -35,11 +39,14 @@
         {
             var pressReleases = ListOfPressReleases.PressReleasesToCount();
 
-            Assert.IsTrue(
-                            pressReleases.Count == Config.DefaultCountOfPressReleases,
-                            Resource.DefaultCountOfPressReleases,
-                            pressReleases,
-                            Config.DefaultCountOfPressReleases);
+            TestContentBlockOfPressReleases.message = string.Format(
+                                                                     Resource.DefaultCountOfPressReleases,
+                                                                     pressReleases,
+                                                                     Config.DefaultCountOfPressReleases);
+
+            Logger.MessageAboutError = TestContentBlockOfPressReleases.message;
+
+            Assert.IsTrue(pressReleases.Count != Config.DefaultCountOfPressReleases, TestContentBlockOfPressReleases.message);
         }
 
         [Test, Category("CountElements")]
@@ -49,11 +56,15 @@
 
             var pressReleases = page.PressReleasesToCount();
 
+            TestContentBlockOfPressReleases.message = string.Format(
+                                                                    Resource.CountOfPressReleasesAfterClickMore,
+                                                                    pressReleases.Count,
+                                                                    Config.MaxCountOfPressReleasesOnPage);
+
+            Logger.MessageAboutError = TestContentBlockOfPressReleases.message;
+
             Assert.IsTrue(
-                          pressReleases.Count <= Config.MaxCountOfPressReleasesOnPage,
-                          Resource.CountOfPressReleasesAfterClickMore,
-                          pressReleases.Count,
-                          Config.MaxCountOfPressReleasesOnPage);
+                          pressReleases.Count <= Config.MaxCountOfPressReleasesOnPage, TestContentBlockOfPressReleases.message);
         }
 
         [Test, Category("ObligatoryData")]
@@ -69,10 +80,14 @@
                                                                         pressRelease.Title.ElementAt(0),
                                                                         pressRelease.Title.ElementAt(1));
 
-                SoftAssert.That(
-                                 pressRelease.Title.All(
-                                                 title => !string.IsNullOrWhiteSpace(title)),
-                                                 TestContentBlockOfPressReleases.message);
+                var result = pressRelease.Title.All(title => !string.IsNullOrWhiteSpace(title));
+
+                if (!result)
+                {
+                    this.WriteToLogFailedSoftAssertsMessage(TestContentBlockOfPressReleases.message);
+                }
+
+                SoftAssert.That(result, TestContentBlockOfPressReleases.message);
             }
         }
 
@@ -87,7 +102,14 @@
                                                                         Resource.CorrectLinkToImageOfPressReleases,
                                                                         pressRelease.Id);
 
-                SoftAssert.That(pressRelease.SizeOfImageByAnnouncement != 0, TestContentBlockOfPressReleases.message);
+                var result = pressRelease.SizeOfImageByAnnouncement != 0;
+
+                if (!result)
+                {
+                    this.WriteToLogFailedSoftAssertsMessage(TestContentBlockOfPressReleases.message);
+                }
+
+                SoftAssert.That(result, TestContentBlockOfPressReleases.message);
             }
         }
 
@@ -102,9 +124,14 @@
                                                                         Resource.AnnouncementOfPressReleaseIsNotNull,
                                                                         pressRelease.Id);
 
-                SoftAssert.That(
-                                !string.IsNullOrEmpty(pressRelease.Announcement),
-                                TestContentBlockOfPressReleases.message);
+                var result = !string.IsNullOrEmpty(pressRelease.Announcement);
+
+                if (!result)
+                {
+                    this.WriteToLogFailedSoftAssertsMessage(TestContentBlockOfPressReleases.message);
+                }
+
+                SoftAssert.That(result, TestContentBlockOfPressReleases.message);
             }
         }
 
@@ -119,7 +146,14 @@
                                                                         Resource.CorrectLinkToWatchPDFOfPressReleases,
                                                                         pressRelease.Id);
 
-                SoftAssert.That(pressRelease.SizeOfFileToWatchPDF != 0, TestContentBlockOfPressReleases.message);
+                var result = pressRelease.SizeOfFileToWatchPDF != 0;
+
+                if (!result)
+                {
+                    this.WriteToLogFailedSoftAssertsMessage(TestContentBlockOfPressReleases.message);
+                }
+
+                SoftAssert.That(result, TestContentBlockOfPressReleases.message);
             }
         }
 
@@ -134,7 +168,14 @@
                                                                         Resource.CorrectLinkToDownloadPDFOfPressReleases,
                                                                         pressRelease.Id);
 
-                SoftAssert.That(pressRelease.SizeOfFileToDownloadPDF != 0, TestContentBlockOfPressReleases.message);
+                var result = pressRelease.SizeOfFileToDownloadPDF != 0;
+
+                if (!result)
+                {
+                    this.WriteToLogFailedSoftAssertsMessage(TestContentBlockOfPressReleases.message);
+                }
+
+                SoftAssert.That(result, TestContentBlockOfPressReleases.message);
             }
         }
 
@@ -170,9 +211,14 @@
                                                                         Resource.MatchTitleOfPressReleasesOnListAndPage,
                                                                         pressReleases.ElementAt(i).Id);
 
-                SoftAssert.That(
-                                titlesOfPressReleasesFromList.ElementAt(0).Equals(pressReleaseOnPage, System.StringComparison.InvariantCultureIgnoreCase),
-                                TestContentBlockOfPressReleases.message);
+                var result = titlesOfPressReleasesFromList.ElementAt(0).Equals(pressReleaseOnPage, System.StringComparison.InvariantCultureIgnoreCase);
+
+                if (!result)
+                {
+                    this.WriteToLogFailedSoftAssertsMessage(TestContentBlockOfPressReleases.message);
+                }
+
+                SoftAssert.That(result, TestContentBlockOfPressReleases.message);
             }
         }
 
@@ -190,9 +236,14 @@
                                                                         ListOfPressReleases.DateFrom.ToString(ListOfPressReleases.PatternDate),
                                                                         ListOfPressReleases.DateTo.ToString(ListOfPressReleases.PatternDate));
 
-                SoftAssert.That(
-                            pressRelease.Date >= ListOfPressReleases.DateFrom && pressRelease.Date <= ListOfPressReleases.DateTo,
-                            TestContentBlockOfPressReleases.message);
+                var result = pressRelease.Date >= ListOfPressReleases.DateFrom && pressRelease.Date <= ListOfPressReleases.DateTo;
+
+                if (!result)
+                {
+                    this.WriteToLogFailedSoftAssertsMessage(TestContentBlockOfPressReleases.message);
+                }
+
+                SoftAssert.That(result, TestContentBlockOfPressReleases.message);
             }
         }
     }

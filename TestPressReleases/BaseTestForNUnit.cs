@@ -1,57 +1,26 @@
 namespace Tests
 {
+    using System;
+    using System.Diagnostics;
+    using System.IO;
+    using Logger;
     using NUnit.Framework;
     using NUnit.Framework.Interfaces;
     using Reporting;
     using Serilog;
-    using Serilog.Formatting.Json;
-    using Tiver.Fowl.Core.Context;
-    using Tiver.Fowl.Core.Enums;
-    using Tiver.Fowl.Logging;
-    using Tiver.Fowl.TestingBase;
-    using Tiver.Fowl.WebDriverExtended.Browsers;
+    using WDriver;
 
-    [TestFixture]
-    public class BaseTestForNUnit : IBaseTest
+    public class BaseTestForNUnit
     {
         [SetUp]
         public void Setup()
         {
-            //Flow.Setup(GetType(), TestContext.CurrentContext.Test.Name);
-
-
-            BaseTestForNUnit.Configure();
-
             TestExecutionContext.TestType = GetType();
             TestExecutionContext.TestName = TestContext.CurrentContext.Test.Name;
-
-            if (TestExecutionContext.IsWebDriverTest)
-            {
-                TestExecutionContext.Browser = BrowserFactory.GetBrowser();
-                TestExecutionContext.BrowserActions.NavigateToStartUri();
-            }
-
         }
-
-        private static void Configure()
-        {
-            if (configured)
-            {
-                return;
-            }
-
-            Log.Logger = new LoggerConfiguration()
-                .Enrich.With(new TestNameEnricher())
-                .WriteTo.LiterateConsole()
-                .WriteTo.File(new JsonFormatter(), "./log.txt")
-                .CreateLogger();
-            configured = true;
-        }
-
-        private static bool configured;
 
         [TearDown]
-        public void Teardown()
+        public void GetResultTest()
         {
             var testStatus = TestContext.CurrentContext.Result.Outcome.Status;
             TestResult testResult;
@@ -71,23 +40,45 @@ namespace Tests
                     break;
             }
 
-            Flow.Teardown(testResult);
+            BaseTestForNUnit.Teardown(testResult);
         }
 
-        public int? Step
+        private static void Teardown(TestResult testResult)
         {
-            get;
-            set;
+            TestExecutionContext.TestResult = testResult;
+            Teardown();
         }
-    }
 
-    [SetUpFixture]
-    public class SetupFixtureForNUnit
-    {
-        [OneTimeTearDown]
-        public static void Cleanup()
+        private static void Teardown()
         {
-            Report.Build();
+            Log.ForContext("LogType", "TestResult").Information("Test result - '{TestResult}'", TestExecutionContext.TestResult);
+
+            if (TestExecutionContext.TestResult == TestResult.Failed)
+            {
+                Log.Error(string.Format(Resource.ResultError, Logger.MessageAboutError));
+                var screenshot = WDriver.TakeScreenshot(Path.Combine(Environment.CurrentDirectory, Config.FolderToScreenshot), TestExecutionContext.TestName);
+                Logger.WriteToLogAboutScreenshot(screenshot);
+            }
+
+            WDriver.Quit();
+        }
+
+        [SetUpFixture]
+        public class SetupFixtureForNUnit
+        {
+            [OneTimeTearDown]
+            public static void Cleanup()
+            {
+                Report.Build();
+            }
+
+            [OneTimeSetUp]
+            public static void SetUpBeforeTest()
+            {
+                Logger.Configure();
+
+                Debug.WriteLine(Resource.StartLog);
+            }
         }
     }
 }

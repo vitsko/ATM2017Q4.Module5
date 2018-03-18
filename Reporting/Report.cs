@@ -3,10 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using HandlebarsDotNet;
     using Newtonsoft.Json.Linq;
-    using System.Linq;
+    using WDriver;
 
     public static class Report
     {
@@ -14,7 +15,7 @@
         {
             // Parse log of tests
             var lines = new List<JObject>();
-            using (var fs = new FileStream("./log.txt", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var fs = new FileStream(Config.FileToLog, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var sr = new StreamReader(fs, Encoding.Default))
             {
                 string line;
@@ -23,8 +24,8 @@
                     lines.Add(JObject.Parse(line));
                 }
             }
-            var testResults = lines.GroupBy(l => l["Properties"]["TestName"]);
 
+            var testResults = lines.GroupBy(l => l["Properties"]["TestName"]);
 
             // Render report
             var indexTemplateRaw = File.ReadAllText("./templates/index.hbs");
@@ -41,35 +42,6 @@
             foreach (var testResult in testResults)
             {
                 var outcome = testResult.Single(d => d["Properties"]["LogType"]?.Value<string>() == "TestResult");
-
-                var tempDetails = new List<dynamic>();
-
-                foreach (var detail in testResult.Where(d => d["Properties"]["LogType"]?.Value<string>() == "ElementAction" ||
-                                                             d["Properties"]["LogType"]?.Value<string>() == "Screenshot" ||
-                                                             d["Properties"]["LogType"]?.Value<string>() == "TestStep"))
-                {
-                    switch (detail["Properties"]["LogType"]?.Value<string>())
-                    {
-                        case "ElementAction":
-                            tempDetails.Add(new
-                            {
-                                is_action = true,
-                                element = detail["Properties"]["Name"].Value<string>(),
-                                action = detail["Properties"]["Action"].Value<string>(),
-                            });
-                            break;
-                        case "TestStep":
-                            tempDetails.Add(new
-                            {
-                                is_step = true,
-                                step = detail["Properties"]["Step"].Value<string>(),
-                                text = detail["Properties"]["Text"].Value<string>(),
-                            });
-                            break;
-                        default:
-                            continue;
-                    }
-                }
 
                 var tempScreenshots = new List<dynamic>();
 
@@ -88,7 +60,6 @@
                     test_name = testResult.Key.Value<string>(),
                     status = outcome["Properties"]["TestResult"].Value<string>(),
                     status_color = (outcome["Properties"]["TestResult"].Value<string>() == "Passed") ? "green" : "red",
-                    details = tempDetails.ToArray(),
                     screenshots = tempScreenshots.ToArray()
                 };
 
@@ -101,8 +72,13 @@
                 test_results = testResultsData.ToArray()
             };
 
+            if (!Directory.Exists(Config.FolderToReport))
+            {
+                Directory.CreateDirectory(Config.FolderToReport);
+            }
+
             var resultRaw = indexTemplate(data);
-            using (var sw = new StreamWriter("./report.html"))
+            using (var sw = new StreamWriter(Config.FileToReport))
             {
                 sw.WriteLine(resultRaw);
             }

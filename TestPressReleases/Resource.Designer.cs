@@ -133,6 +133,33 @@ namespace Tests {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to WDriver opens page by URL = &apos;{0}&apos;..
+        /// </summary>
+        internal static string OpenPage {
+            get {
+                return ResourceManager.GetString("OpenPage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Test failed because of error is &apos;{0}&apos;.
+        /// </summary>
+        internal static string ResultError {
+            get {
+                return ResourceManager.GetString("ResultError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Logging for testing is started..
+        /// </summary>
+        internal static string StartLog {
+            get {
+                return ResourceManager.GetString("StartLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Press-release with Id = {0} contains date = &apos;{1}&apos; and title = &apos;{2}&apos;.
         /// </summary>
         internal static string TitleOfPressReleaseIsNotNull {
